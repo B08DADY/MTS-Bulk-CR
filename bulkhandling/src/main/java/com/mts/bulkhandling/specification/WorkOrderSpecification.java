@@ -1,0 +1,112 @@
+package com.mts.bulkhandling.specification;
+
+import com.mts.bulkhandling.dto.WorkOrderSearchRequest;
+import com.mts.bulkhandling.model.WfWoBulkCloseQueue;
+import com.mts.bulkhandling.model.WfWorkOrder;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Builds a JPA {@link Specification} for searching {@link WfWorkOrder} records
+ * with a mandatory INNER JOIN to {@link WfWoBulkCloseQueue}.
+ *
+ * <p>Hardcoded constraints (always applied):
+ * <ol>
+ *   <li>wf_work_order.WO_STAGE IN ('Assign')</li>
+ *   <li>wf_wo_bulk_close_queue.RECORD_STATUS &lt;&gt; 'pending validation'</li>
+ * </ol>
+ */
+public class WorkOrderSpecification {
+
+    private static final String PENDING_VALIDATION = "pending validation";
+    private static final String STAGE_ASSIGN = "Assign";
+
+    private WorkOrderSpecification() {
+        // utility class – no instantiation
+    }
+
+    /**
+     * Builds a {@link Specification} from the given search request.
+     *
+     * @param request the search request (fields may be null/empty)
+     * @return a Specification combining hardcoded and dynamic predicates
+     */
+    public static Specification<WfWorkOrder> buildSearchSpec(WorkOrderSearchRequest request) {
+        return (Root<WfWorkOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+
+            // JOIN wf_work_order → wf_wo_bulk_close_queue (INNER JOIN)
+            Join<WfWorkOrder, WfWoBulkCloseQueue> queueJoin =
+                    root.join("bulkCloseQueues", JoinType.INNER);
+
+            // Deduplicate root when fetching (avoids N+1 duplicates with pagination)
+            query.distinct(true);
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            // ── HARDCODED CONSTRAINTS ─────────────────────────────────────────
+            // 1. WO_STAGE must be IN ('Assign')
+            predicates.add(root.get("woStage").in(Arrays.asList(STAGE_ASSIGN)));
+
+            // 2. RECORD_STATUS must NOT equal 'pending validation'
+            predicates.add(cb.notEqual(
+                    cb.lower(queueJoin.get("recordStatus")),
+                    PENDING_VALIDATION.toLowerCase()));
+
+            // ── DYNAMIC FILTERS (null-safe) ───────────────────────────────────
+
+            // workOrderId
+            if (hasText(request.getWorkOrderId())) {
+                predicates.add(cb.equal(root.get("workOrderId"), request.getWorkOrderId().trim()));
+            }
+
+            // organization → ORG_ROLE_NAME
+            if (hasText(request.getOrganization())) {
+                predicates.add(cb.equal(root.get("orgRoleName"), request.getOrganization().trim()));
+            }
+
+            // place → PLACE_ID
+            if (hasText(request.getPlace())) {
+                predicates.add(cb.equal(root.get("placeId"), request.getPlace().trim()));
+            }
+
+            // serviceId → SERVICE_ID
+            if (hasText(request.getServiceId())) {
+                predicates.add(cb.equal(root.get("serviceId"), request.getServiceId().trim()));
+            }
+
+            // referenceId → REFERENCE_ID
+            if (hasText(request.getReferenceId())) {
+                predicates.add(cb.equal(root.get("referenceId"), request.getReferenceId().trim()));
+            }
+
+            // requestType → REQUEST_TYPE
+            if (hasText(request.getRequestType())) {
+                predicates.add(cb.equal(root.get("requestType"), request.getRequestType().trim()));
+            }
+
+            // fileId → WF_WO_BULK_CLOSE_QUEUE.FILE_ID
+            if (request.getFileId() != null) {
+                predicates.add(cb.equal(queueJoin.get("fileId"), request.getFileId()));
+            }
+
+            // recordStatus → WF_WO_BULK_CLOSE_QUEUE.RECORD_STATUS
+            // User-supplied value is applied ONLY when it does not equal 'pending validation';
+            // the hardcoded exclusion above already blocks that value.
+            if (hasText(request.getRecordStatus())
+                    && !PENDING_VALIDATION.equalsIgnoreCase(request.getRecordStatus().trim())) {
+                predicates.add(cb.equal(queueJoin.get("recordStatus"), request.getRecordStatus().trim()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    /** Returns true if the string is non-null and non-blank. */
+    private static boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+}
