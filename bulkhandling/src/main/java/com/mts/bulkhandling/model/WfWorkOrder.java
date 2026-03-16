@@ -33,6 +33,10 @@ public class WfWorkOrder {
     @Column(name = "ORG_ROLE_NAME", length = 50)
     private String orgRoleName;
 
+
+    @Column(name = "BULK_STATUS", length = 50)
+    private String bulkStatus;
+
     @Column(name = "WORK_ORDER_DESC", length = 4000)
     private String workOrderDesc;
 
@@ -333,5 +337,5 @@ public class WfWorkOrder {
     private Date manualSchdTime;
 
     @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
-    private List<WfWoBulkCloseQueue> bulkCloseQueues;
+    private List<WfWoBulkQueue> bulkQueue;
 }

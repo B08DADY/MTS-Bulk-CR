@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WfWoBulkCloseQueue {
+public class WfWoBulkQueue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,14 +1,16 @@
 package com.mts.bulkhandling.controller;
 
-import com.mts.bulkhandling.dto.WorkOrderSearchRequest;
-import com.mts.bulkhandling.dto.WorkOrderSearchResponse;
-import com.mts.bulkhandling.service.WorkOrderService;
+import com.mts.bulkhandling.dto.*;
+import com.mts.bulkhandling.service.OpenWorkOrderService;
+import com.mts.bulkhandling.service.OrgRoleService;
+import com.mts.bulkhandling.service.PlaceService;
+import com.mts.bulkhandling.service.ReqTypeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST Controller exposing the paginated dynamic work-order search endpoint.
@@ -32,26 +34,48 @@ import org.springframework.web.bind.annotation.RestController;
  * </pre>
  */
 @RestController
-@RequestMapping("/search")
+@RequestMapping("/api/search")
 public class WorkOrderController {
 
-    private final WorkOrderService workOrderService;
+    @Autowired
+    private  ReqTypeService reqTypeService;
+    @Autowired
+    private  OpenWorkOrderService openWorkOrderService;
+    @Autowired
+    private PlaceService placeService;
 
-    public WorkOrderController(WorkOrderService workOrderService) {
-        this.workOrderService = workOrderService;
-    }
+    @Autowired
+    private OrgRoleService orgRoleService;
 
-    /**
-     * Search work orders dynamically with pagination.
-     *
-     * @param request filter + pagination parameters (all optional except pagination defaults)
-     * @return paginated list of matching work orders
-     */
-    @PostMapping
-    public ResponseEntity<Page<WorkOrderSearchResponse>> search(
+
+
+
+    @PostMapping("/opend")
+    public ResponseEntity<Page<WorkOrderSearchResponse>> getOpenWork(
             @RequestBody WorkOrderSearchRequest request) {
 
-        Page<WorkOrderSearchResponse> result = workOrderService.search(request);
+        Page<WorkOrderSearchResponse> result = openWorkOrderService.search(request);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/request-types/fo-ftth")
+    public ResponseEntity<List<ReqTypeResponse>> getFoFtthRequestTypes(){
+        return ResponseEntity.ok(reqTypeService.getFoFtthRequestTypes());
+
+    }
+
+    @GetMapping("/places")
+    public ResponseEntity<List<PlaceResponse>> getPlacesByOrganization(
+            @RequestParam("organization") String organization) {
+        return ResponseEntity.ok(placeService.getPlacesByOrganization(organization));
+    }
+
+    @GetMapping("/organizations/hierarchy")
+    public ResponseEntity<List<OrgRoleResponse>> getOrgHierarchy(
+            @RequestParam("orgRoleName") String orgRoleName) {
+        return ResponseEntity.ok(orgRoleService.getOrgHierarchy(orgRoleName));
+    }
+
+
+
 }

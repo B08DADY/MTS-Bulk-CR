@@ -18,10 +18,10 @@ public class WorkOrderSearchRequest {
     private String serviceId;      // maps to SERVICE_ID
     private String referenceId;    // maps to REFERENCE_ID
     private String requestType;    // maps to REQUEST_TYPE
-
+    private String bulkStatus;
     // ── Filters from WF_WO_BULK_CLOSE_QUEUE ────────────────────────────────
-    private Long   fileId;         // maps to FILE_ID
-    private String recordStatus;   // maps to RECORD_STATUS (must still exclude 'pending validation')
+  //  private Long   fileId;         // maps to FILE_ID
+   // private String recordStatus;   // maps to RECORD_STATUS (must still exclude 'pending validation')
 
     // ── Pagination / Sorting ────────────────────────────────────────────────
     private int    page    = 0;
