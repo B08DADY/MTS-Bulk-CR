@@ -19,7 +19,7 @@ JPA entity for `WF_WO_BULK_CLOSE_QUEUE` table (schema `MTS_WFM_2017`). `ID` is t
 ### DTOs (new)
 
 #### [NEW] WorkOrderSearchRequest.java
-`com.mts.bulkhandling.dto.WorkOrderSearchRequest`  
+`com.mts.bulkhandling.dto.WoSearchRequest`  
 Request DTO accepting optional filter fields:
 - `workOrderId`, `organization`, `place`, `serviceId`, `referenceId`, `requestType` (from `wf_work_order`)
 - `fileId` (from `wf_wo_bulk_close_queue`)
@@ -27,7 +27,7 @@ Request DTO accepting optional filter fields:
 - `page` (default 0), `size` (default 10), `sortBy` (default `workOrderId`), `sortDir` (default `asc`)
 
 #### [NEW] WorkOrderSearchResponse.java
-`com.mts.bulkhandling.dto.WorkOrderSearchResponse`  
+`com.mts.bulkhandling.dto.OpenedWoSearchResponse`  
 Response DTO (flat projection) with fields from both tables:
 `workOrderId`, `orgRoleName`, `placeId`, `serviceId`, `referenceId`, `requestType`, `woStage`, `woStatus`, `fileId`, `recordStatus`, `orderStatus`, `actionDate`.
 
@@ -83,7 +83,7 @@ Static factory method `buildSearchSpec(WorkOrderSearchRequest)` returns a `Speci
 ### Controller (new)
 
 #### [NEW] WorkOrderController.java
-`com.mts.bulkhandling.controller.WorkOrderController`  
+`com.mts.bulkhandling.controller.SearchBulkController`  
 - `POST /search`
 - Accepts `@RequestBody WorkOrderSearchRequest`
 - Returns `ResponseEntity<Page<WorkOrderSearchResponse>>`

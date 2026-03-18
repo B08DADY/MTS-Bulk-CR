@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -24,8 +25,11 @@ public class WfWoBulkQueue {
     @Column(name = "FILE_ID", nullable = false)
     private Long fileId;
 
+    @Column(name = "work_order_id", insertable = false, updatable = false)
+    private String workOrderId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "WORK_ORDER_ID", referencedColumnName = "WORK_ORDER_ID", nullable = false)
+    @JoinColumn(name = "work_order_id")
     private WfWorkOrder workOrder;
 
     @Column(name = "ORGANIZATION_UNIT", length = 100)
@@ -53,6 +57,5 @@ public class WfWoBulkQueue {
     private String orderStatus;
 
     @Column(name = "ACTION_DATE")
-    @Temporal(TemporalType.DATE)
-    private Date actionDate;
+    private LocalDateTime actionDate;
 }

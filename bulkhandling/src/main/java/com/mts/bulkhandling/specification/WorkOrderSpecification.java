@@ -1,6 +1,6 @@
 package com.mts.bulkhandling.specification;
 
-import com.mts.bulkhandling.dto.WorkOrderSearchRequest;
+import com.mts.bulkhandling.dto.WoSearchRequest;
 import com.mts.bulkhandling.model.WfWoBulkQueue;
 import com.mts.bulkhandling.model.WfWorkOrder;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,7 +24,7 @@ public class WorkOrderSpecification {
 
     private static final String PENDING_VALIDATION = "pending validation";
     private static final List<String> STAGE_ASSIGN = Arrays.asList("Schedule", "Assign");
-
+    // not analyze ready
     private WorkOrderSpecification() {
         // utility class – no instantiation
     }
@@ -35,7 +35,7 @@ public class WorkOrderSpecification {
      * @param request the search request (fields may be null/empty)
      * @return a Specification combining hardcoded and dynamic predicates
      */
-    public static Specification<WfWorkOrder> buildSearchSpec(WorkOrderSearchRequest request) {
+    public static Specification<WfWorkOrder> buildSearchSpec(WoSearchRequest request) {
         return (Root<WfWorkOrder> wfWorkOrderRoot, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
 
             // JOIN wf_work_order → wf_wo_bulk_close_queue (INNER JOIN)

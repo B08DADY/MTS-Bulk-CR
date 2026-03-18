@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +16,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WorkOrderSearchResponse {
+public class OpenedWoSearchResponse {
 
     // ── From WF_WORK_ORDER ─────────────────────────────────────────────────
     private String workOrderId;
@@ -47,15 +46,15 @@ public class WorkOrderSearchResponse {
 
 
 
-    public static WorkOrderSearchResponse fromEntity(WfWorkOrder wo) {
+    public static OpenedWoSearchResponse fromEntity(WfWorkOrder wo) {
         // Pick the first queue entry (the join already filters to valid ones)
         List<WfWoBulkQueue> queues = wo.getBulkQueue();
         Optional<WfWoBulkQueue> firstQueue = (queues != null && !queues.isEmpty())
                 ? Optional.of(queues.get(0))
                 : Optional.empty();
 
-        WorkOrderSearchResponse.WorkOrderSearchResponseBuilder builder =
-                WorkOrderSearchResponse.builder()
+        OpenedWoSearchResponse.OpenedWoSearchResponseBuilder builder =
+                OpenedWoSearchResponse.builder()
                         .workOrderId(wo.getWorkOrderId())
                         .orgRoleName(wo.getOrgRoleName())
                         .placeId(wo.getPlaceId())

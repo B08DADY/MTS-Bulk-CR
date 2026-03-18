@@ -1,12 +1,12 @@
 package com.mts.bulkhandling.controller;
 
 import com.mts.bulkhandling.dto.*;
-import com.mts.bulkhandling.service.OpenWorkOrderService;
-import com.mts.bulkhandling.service.OrgRoleService;
-import com.mts.bulkhandling.service.PlaceService;
-import com.mts.bulkhandling.service.ReqTypeService;
+import com.mts.bulkhandling.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +16,8 @@ import java.util.List;
  * REST Controller exposing the paginated dynamic work-order search endpoint.
  *
  * <p>POST /search
- * Accepts a JSON body of {@link WorkOrderSearchRequest} and returns a
- * paginated {@link Page} of {@link WorkOrderSearchResponse}.
+ * Accepts a JSON body of {@link WoSearchRequest} and returns a
+ * paginated {@link Page} of {@link OpenedWoSearchResponse}.
  *
  * <p>Example request body:
  * <pre>
@@ -35,7 +35,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/search")
-public class WorkOrderController {
+public class SearchBulkController {
 
     @Autowired
     private  ReqTypeService reqTypeService;
@@ -47,16 +47,35 @@ public class WorkOrderController {
     @Autowired
     private OrgRoleService orgRoleService;
 
+    @Autowired
+    private HandlingBulkQueueService handlingBulkQueueService;
+
 
 
 
     @PostMapping("/opend")
-    public ResponseEntity<Page<WorkOrderSearchResponse>> getOpenWork(
-            @RequestBody WorkOrderSearchRequest request) {
+    public ResponseEntity<Page<OpenedWoSearchResponse>> getOpenWork(
+            @RequestBody WoSearchRequest request) {
 
-        Page<WorkOrderSearchResponse> result = openWorkOrderService.search(request);
+        Page<OpenedWoSearchResponse> result = openWorkOrderService.search(request);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/handled")
+    public ResponseEntity<?> search(
+            @RequestBody WoSearchRequest request
+    ) {
+        try {
+            Pageable pageable = PageRequest.of(request.getPage() ,request.getSize());
+            Page<HandledWoSearchResponse> result = handlingBulkQueueService.search(request, pageable);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error while searching: " + e.getMessage());
+        }
+    }
+
 
     @GetMapping("/request-types/fo-ftth")
     public ResponseEntity<List<ReqTypeResponse>> getFoFtthRequestTypes(){
@@ -75,7 +94,5 @@ public class WorkOrderController {
             @RequestParam("orgRoleName") String orgRoleName) {
         return ResponseEntity.ok(orgRoleService.getOrgHierarchy(orgRoleName));
     }
-
-
 
 }
