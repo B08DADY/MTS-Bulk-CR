@@ -1,6 +1,7 @@
 package com.mts.bulkhandling.service;
 
 import com.mts.bulkhandling.dto.PlaceResponse;
+import com.mts.bulkhandling.mapper.Mapper;
 import com.mts.bulkhandling.repository.LcPlaceDemographicRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,7 @@ public class PlaceService {
     public List<PlaceResponse> getPlacesByOrganization(String organizationName) {
         return placeRepository.findByOrgRoleId(organizationName)
                 .stream()
-                .map(PlaceResponse::fromEntity)
+                .map(Mapper::toPlaceResponse)
                 .collect(Collectors.toList());
     }
 }
-

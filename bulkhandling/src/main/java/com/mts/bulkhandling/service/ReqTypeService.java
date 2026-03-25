@@ -1,7 +1,7 @@
 package com.mts.bulkhandling.service;
 
 import com.mts.bulkhandling.dto.ReqTypeResponse;
-import com.mts.bulkhandling.model.BsCfgReqType;
+import com.mts.bulkhandling.mapper.Mapper;
 import com.mts.bulkhandling.repository.BsCfgReqTypeRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ public class ReqTypeService {
     public List<ReqTypeResponse> getFoFtthRequestTypes() {
         return reqTypeRepository.findByRequestTypeDesc(FO_FTTH_DESC)
                 .stream()
-                .map(ReqTypeResponse :: fromEntity)
+                .map(Mapper::toReqTypeResponse)
                 .collect(Collectors.toList());
     }
 

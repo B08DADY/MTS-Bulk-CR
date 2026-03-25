@@ -11,21 +11,32 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class ImportBulkRequest {
 
-    @NotBlank(message = "workOrderId is required")
+//    @NotBlank(message = "workOrderId is required")
     private String workOrderId;
 
-    @NotBlank(message = "referenceId is required")
+//    @NotBlank(message = "referenceId is required")
     private String referenceId;
 
-    @NotBlank(message = "serviceNumber is required")
+//    @NotBlank(message = "serviceNumber is required")
     private String serviceNumber;
 
-    @NotBlank(message = "organizationUnit is required")
+//    @NotBlank(message = "organizationUnit is required")
     private String organizationUnit;
 
-    @NotBlank(message = "workerId is required")
+//    @NotBlank(message = "workerId is required")
     private String workerId;
 
-    @NotBlank(message = "closeCode is required")
+//    @NotBlank(message = "closeCode is required")
     private String closeCode;
+
+//    @NotBlank(message = "requestType is required")
+    private String requestType;
+
+    private String place;
+
+    private String userId;
+
+    private Long queueId;
+
+    private String fileId;
 }

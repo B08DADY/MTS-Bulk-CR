@@ -23,7 +23,7 @@ public class WfWoBulkQueue {
     private Long id;
 
     @Column(name = "FILE_ID", nullable = false)
-    private Long fileId;
+    private String fileId;
 
     @Column(name = "work_order_id", insertable = false, updatable = false)
     private String workOrderId;
@@ -58,4 +58,32 @@ public class WfWoBulkQueue {
 
     @Column(name = "ACTION_DATE")
     private LocalDateTime actionDate;
+
+    @Column(name = "WORKER_ID")
+    private String workerId;
+
+    @Column(name="CLOSE_CODE")
+    private String closeCode;
+
+    @Column(name="BOX")
+    private String box;
+
+    @Column(name="CABINET")
+    private String cabinet;
+
+
+    @Column(name="DEVICE_TYPE")
+    private String deviceType;
+
+
+    @Column(name="SERIAL_NUMBER")
+    private String serialNumber;
+
+    @Column(name="MAC_ADDRESS")
+    private String macAddress;
+
+
+
+
+
 }

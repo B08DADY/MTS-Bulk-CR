@@ -12,12 +12,12 @@ import javax.validation.constraints.NotBlank;
 //@Builder
 public class ImportRetailSuccessBulkRequest extends ImportBulkRequest {
 
-    @NotBlank(message = "serialNumber is required")
+//    @NotBlank(message = "serialNumber is required")
     private String serialNumber;
 
     private String macAddress;
 
-    @NotBlank(message = "deviceType is required")
+//    @NotBlank(message = "deviceType is required")
     private String deviceType;
 
 }

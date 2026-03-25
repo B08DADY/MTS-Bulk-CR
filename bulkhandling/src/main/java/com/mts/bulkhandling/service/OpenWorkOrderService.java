@@ -2,9 +2,11 @@ package com.mts.bulkhandling.service;
 
 import com.mts.bulkhandling.dto.WoSearchRequest;
 import com.mts.bulkhandling.dto.OpenedWoSearchResponse;
+import com.mts.bulkhandling.mapper.Mapper;
 import com.mts.bulkhandling.model.WfWorkOrder;
 import com.mts.bulkhandling.repository.WfWorkOrderRepository;
 import com.mts.bulkhandling.specification.WorkOrderSpecification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class OpenWorkOrderService {
 
-    private final WfWorkOrderRepository workOrderRepository;
-
-    public OpenWorkOrderService(WfWorkOrderRepository workOrderRepository) {
-        this.workOrderRepository = workOrderRepository;
-    }
+    @Autowired
+    private  WfWorkOrderRepository workOrderRepository;
 
     /**
      * Executes a paginated, dynamic search over WF_WORK_ORDER joined to
@@ -31,12 +30,15 @@ public class OpenWorkOrderService {
      * @return a {@link Page} of {@link OpenedWoSearchResponse} DTOs
      */
     public Page<OpenedWoSearchResponse> search(WoSearchRequest request) {
+        if(request.getOrganization() == null)
+            throw new RuntimeException("organizationUnit is mandatory");
+
         Sort sort = buildSort(request);
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         Specification<WfWorkOrder> spec = WorkOrderSpecification.buildSearchSpec(request);
 
         Page<WfWorkOrder> workOrderPage = workOrderRepository.findAll(spec, pageable);
-        return workOrderPage.map(OpenedWoSearchResponse::fromEntity);
+        return workOrderPage.map(Mapper::toOpenedWoSearchResponse);
     }
 
 

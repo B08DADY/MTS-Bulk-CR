@@ -54,11 +54,19 @@ public class SearchBulkController {
 
 
     @PostMapping("/opend")
-    public ResponseEntity<Page<OpenedWoSearchResponse>> getOpenWork(
+    public ResponseEntity<?> getOpenWork(
             @RequestBody WoSearchRequest request) {
 
-        Page<OpenedWoSearchResponse> result = openWorkOrderService.search(request);
-        return ResponseEntity.ok(result);
+        try {
+            Page<OpenedWoSearchResponse> result = openWorkOrderService.search(request);
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error while searching: " + e.getMessage());
+        }
+
+
     }
 
     @PostMapping("/handled")

@@ -12,9 +12,7 @@ import javax.validation.constraints.NotBlank;
 public class ImportFoBulkRequest extends ImportBulkRequest{
 
 
-    @NotBlank(message = "cabinet is required")
     private String cabinet ;
 
-    @NotBlank(message = "box is required")
     private String box ;
 }

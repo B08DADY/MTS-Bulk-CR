@@ -25,5 +25,7 @@ public class BsCfgReqType {
 
     @Column(name = "BULK_REQ_CATEGORY")
     private String bulkReqCategory;
+    @Column(name="SERVICE_TYPE")
+    private String serviceType;
 
 }
