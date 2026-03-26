@@ -28,7 +28,7 @@ public class ImportRetailSuccessService {
     private WfWorkOrderRepository wfWorkOrderRepository;
 
     @Transactional
-    public void execute(List<ImportRetailSuccessBulkRequest> requests) {
+    public String execute(List<ImportRetailSuccessBulkRequest> requests) {
         List<WfWoBulkQueue> records = new ArrayList<>();
         String sharedFileId = UUID.randomUUID().toString();
 
@@ -50,6 +50,7 @@ public class ImportRetailSuccessService {
         // Publish a Kafka event for each saved record so the consumer
         // can run RetailSuccessValidation asynchronously.
         bulkQueueEventPublisher.publish(savedRecords, "RETAIL_SUCCESS");
+        return sharedFileId;
     }
 }
 

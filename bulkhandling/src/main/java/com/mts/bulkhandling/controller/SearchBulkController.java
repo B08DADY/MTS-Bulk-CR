@@ -50,6 +50,9 @@ public class SearchBulkController {
     @Autowired
     private HandlingBulkQueueService handlingBulkQueueService;
 
+    @Autowired
+    private BulkStatusService bulkStatusService;
+
 
 
 
@@ -101,6 +104,12 @@ public class SearchBulkController {
     public ResponseEntity<List<OrgRoleResponse>> getOrgHierarchy(
             @RequestParam("orgRoleName") String orgRoleName) {
         return ResponseEntity.ok(orgRoleService.getOrgHierarchy(orgRoleName));
+    }
+
+    @GetMapping("/bulk-status")
+    public ResponseEntity<List<String>> getBulkStatuses() {
+        List<String> statuses = bulkStatusService.getAllStatuses();
+        return ResponseEntity.ok(statuses);
     }
 
 }

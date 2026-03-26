@@ -35,9 +35,9 @@ public class ImportBulkController {
     ) {
         try {
 
-            importFoService.execute(request);
+            String response = importFoService.execute(request);
 
-            return ResponseEntity.ok("Imported successfully");
+            return ResponseEntity.ok("Imported successfully with file_id : "+response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error while importing: " + e.getMessage());
@@ -50,9 +50,9 @@ public class ImportBulkController {
     ) {
         try {
 
-            importRetailSuccessService.execute(request);
+            String response = importRetailSuccessService.execute(request);
 
-            return ResponseEntity.ok("Imported successfully");
+            return ResponseEntity.ok("Imported successfully with file_id : "+response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error while importing: " + e.getMessage());
@@ -66,9 +66,9 @@ public class ImportBulkController {
     ) {
         try {
 
-            importRetailFailService.execute(request);
-
+            String response = importRetailFailService.execute(request);
             return ResponseEntity.ok("Imported successfully");
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error while importing: " + e.getMessage());

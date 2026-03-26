@@ -28,7 +28,7 @@ public class ImportFoService {
     private WfWorkOrderRepository wfWorkOrderRepository;
 
     @Transactional
-    public void execute(List<ImportFoBulkRequest> requests) {
+    public String execute(List<ImportFoBulkRequest> requests) {
         List<WfWoBulkQueue> records = new ArrayList<>();
         String sharedFileId = UUID.randomUUID().toString();
 
@@ -51,6 +51,8 @@ public class ImportFoService {
         // Publish a Kafka event for each saved record so the consumer
         // can run FoValidation asynchronously.
         bulkQueueEventPublisher.publish(savedRecords, "FO");
+
+        return sharedFileId;
     }
 }
 

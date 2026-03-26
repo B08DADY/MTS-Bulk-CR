@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 /**
  * Base validation logic executed after every bulk-queue record is saved.
  * Converted from a plain class to a Spring @Component so that @Autowired
@@ -64,6 +66,17 @@ public class Validation {
             rejectWo(queue, workorder,"Work order not found");
             return;
         }
+        boolean exists = wfWoBulkCloseQueueRepository
+                .existsByWorkOrderIdAndRecordStatusIn(
+                        queue.getWorkOrderId(),
+                        Arrays.asList("Closed", "Pending Validation")
+                );
+
+        if (exists) {
+            rejectWo(queue, workorder, "Work order already exists in queue with status Closed or Pending Validation");
+            return;
+        }
+
 
         WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
         BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
