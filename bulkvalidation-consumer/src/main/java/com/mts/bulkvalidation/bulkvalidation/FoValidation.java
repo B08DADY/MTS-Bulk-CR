@@ -29,18 +29,14 @@ public class FoValidation extends Validation {
 
         BsCfgReqType reqType = bsCfgReqTypeRepository.findById(queue.getRequestType()).orElse(null);
 
-        if (reqType == null) {
-            log.warn("Request type '{}' not found for queue id={}. Rejecting.", queue.getRequestType(), queue.getId());
-            rejectWo(queue, workorder);
-            return;
-        }
+
 
         String category = reqType.getBulkReqCategory();
         boolean categoryExempt = "Fix Cross Connection".equals(category) || "Resurvey".equals(category);
 
         if (!categoryExempt && (queue.getBox() == null || queue.getCabinet() == null)) {
             log.warn("Box/Cabinet missing for FO queue id={}. Rejecting.", queue.getId());
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Box/Cabinet missing");
         }
     }
 }

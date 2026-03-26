@@ -36,7 +36,7 @@ public class RetailSuccessValidation extends Validation {
 
         if (reqType == null) {
             log.warn("Request type '{}' not found for queue id={}. Rejecting.", queue.getRequestType(), queue.getId());
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Invalid Request Type");
             return;
         }
 
@@ -46,7 +46,7 @@ public class RetailSuccessValidation extends Validation {
         if (!deviceValid) {
             log.warn("Device type '{}' incompatible with service type '{}' for queue id={}. Rejecting.",
                     queue.getDeviceType(), reqType.getServiceType(), queue.getId());
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Device type incompatible with service type ");
         }
     }
 }

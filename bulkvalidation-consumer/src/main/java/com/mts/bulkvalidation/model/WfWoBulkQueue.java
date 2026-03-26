@@ -81,6 +81,9 @@ public class WfWoBulkQueue {
     @Column(name="MAC_ADDRESS")
     private String macAddress;
 
+    @Column(name="FAIL_REASON")
+    private String failReason;
+
 
 
 }

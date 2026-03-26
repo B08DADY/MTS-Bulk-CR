@@ -1,10 +1,6 @@
 package com.mts.bulkvalidation.bulkvalidation;
 
-import com.mts.bulkvalidation.model.BsCfgReqClose;
-import com.mts.bulkvalidation.model.BsCfgReqCloseId;
-import com.mts.bulkvalidation.model.WfEmpRole;
-import com.mts.bulkvalidation.model.WfWoBulkQueue;
-import com.mts.bulkvalidation.model.WfWorkOrder;
+import com.mts.bulkvalidation.model.*;
 import com.mts.bulkvalidation.repository.BsCfgReqCloseRepository;
 import com.mts.bulkvalidation.repository.WfEmpRoleRepository;
 import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
@@ -36,17 +32,20 @@ public class Validation {
     @Autowired
     protected WfEmpRoleRepository wfEmpRoleRepository;
 
+
     /**
      * Marks both the bulk-queue record and the work-order as "Rejected" and
      * persists both changes.
      */
-    public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder) {
+    public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder,String reason ) {
         bulkOrder.setRecordStatus("Failed");
+        bulkOrder.setFailReason(reason);
         wfWoBulkCloseQueueRepository.save(bulkOrder);
 
-        wfWorkOrder.setBulkStatus("Failed");
-        wfWorkOrderRepository.save(wfWorkOrder);
-
+        if(wfWorkOrder!=null) {
+            wfWorkOrder.setBulkStatus("Failed");
+            wfWorkOrderRepository.save(wfWorkOrder);
+        }
         log.warn("Work order {} Failed for bulk queue record id={}",
                 wfWorkOrder.getWorkOrderId(), bulkOrder.getId());
     }
@@ -62,8 +61,7 @@ public class Validation {
 
         if (workorder == null) {
             log.warn("Work order not found for queue id={}. Marking Rejected.", queue.getId());
-            queue.setRecordStatus("Rejected");
-            wfWoBulkCloseQueueRepository.save(queue);
+            rejectWo(queue, workorder,"Work order not found");
             return;
         }
 
@@ -71,39 +69,42 @@ public class Validation {
         BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
         BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
 
+
+
         // WO must not already be closed
         if ("Close".equals(workorder.getWoStage())) {
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Order is already closed");
             return;
         }
 
         // Reference ID must match
-        if (!workorder.getReferenceId().equals(queue.getReferenceId())) {
-            rejectWo(queue, workorder);
-            return;
-        }
+//        if (!workorder.getReferenceId().equals(queue.getReferenceId())) {
+//            rejectWo(queue, workorder);
+//            return;
+//        }
 
         // Service number must match
-        if (!workorder.getServiceId().equals(queue.getServiceId())) {
-            rejectWo(queue, workorder);
-            return;
-        }
+//        if (!workorder.getServiceId().equals(queue.getServiceId())) {
+//            rejectWo(queue, workorder);
+//            return;
+//        }
 
         // Organisation unit must match
-        if (!workorder.getOrgRoleName().equals(queue.getOrganizationUnit())) {
-            rejectWo(queue, workorder);
-            return;
-        }
+//        if (!workorder.getOrgRoleName().equals(queue.getOrganizationUnit())) {
+//            rejectWo(queue, workorder);
+//            return;
+//        }
 
         // Close code (request_type + close_code combo) must exist
+
         if (reqClose == null) {
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Request type or close code is invalid");
             return;
         }
 
         // Worker ID must be a known employee role
         if (empRole == null) {
-            rejectWo(queue, workorder);
+            rejectWo(queue, workorder,"Invalid worker id");
         }
     }
 }
