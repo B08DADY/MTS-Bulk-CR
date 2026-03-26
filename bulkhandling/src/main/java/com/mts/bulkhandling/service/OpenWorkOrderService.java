@@ -31,7 +31,7 @@ public class OpenWorkOrderService {
      */
     public Page<OpenedWoSearchResponse> search(WoSearchRequest request) {
         if(request.getOrganization() == null)
-            throw new RuntimeException("organizationUnit is mandatory");
+            throw new RuntimeException("organization is mandatory");
 
         Sort sort = buildSort(request);
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);

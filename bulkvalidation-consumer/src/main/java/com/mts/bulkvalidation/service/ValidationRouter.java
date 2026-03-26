@@ -70,7 +70,7 @@ public class ValidationRouter {
         validation.validateAfterBulkQueue(workOrder, queue);
 
         // If already rejected, skip type-specific checks
-        if ("Rejected".equals(queue.getRecordStatus())) {
+        if ("Failed".equals(queue.getRecordStatus())) {
             return;
         }
 
@@ -99,9 +99,12 @@ public class ValidationRouter {
         }
 
         // ── 5. Mark as Validated if still not Rejected ───────────────────────
-        if (!"Rejected".equals(queue.getRecordStatus())) {
-            queue.setRecordStatus("Accepted");
+        if (!"Failed".equals(queue.getRecordStatus())) {
+            queue.setRecordStatus("Pending Validation");
+            workOrder.setBulkStatus("Pending Validation");
             wfWoBulkCloseQueueRepository.save(queue);
+            wfWorkOrderRepository.save(workOrder);
+
             log.info("Queue id={} validated successfully (type={}).", queue.getId(), type);
         }
     }

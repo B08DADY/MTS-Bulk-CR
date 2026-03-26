@@ -41,13 +41,13 @@ public class Validation {
      * persists both changes.
      */
     public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder) {
-        bulkOrder.setRecordStatus("Rejected");
+        bulkOrder.setRecordStatus("Failed");
         wfWoBulkCloseQueueRepository.save(bulkOrder);
 
-        wfWorkOrder.setBulkStatus("Rejected");
+        wfWorkOrder.setBulkStatus("Failed");
         wfWorkOrderRepository.save(wfWorkOrder);
 
-        log.warn("Work order {} rejected for bulk queue record id={}",
+        log.warn("Work order {} Failed for bulk queue record id={}",
                 wfWorkOrder.getWorkOrderId(), bulkOrder.getId());
     }
 
