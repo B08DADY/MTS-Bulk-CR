@@ -5,7 +5,6 @@ import com.mts.bulkvalidation.repository.BsCfgReqCloseRepository;
 import com.mts.bulkvalidation.repository.WfEmpRoleRepository;
 import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
 import com.mts.bulkvalidation.repository.WfWorkOrderRepository;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import java.util.Arrays;
 @Component
 public class Validation {
 
-    private static final Logger log = LoggerFactory.getLogger(Validation.class);
 
     @Autowired
     protected WfWorkOrderRepository wfWorkOrderRepository;
@@ -40,16 +38,22 @@ public class Validation {
      * persists both changes.
      */
     public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder,String reason ) {
-        bulkOrder.setRecordStatus("Failed");
-        bulkOrder.setFailReason(reason);
-        wfWoBulkCloseQueueRepository.save(bulkOrder);
+        try {
+            bulkOrder.setRecordStatus("Failed");
+            bulkOrder.setFailReason(reason);
 
-        if(wfWorkOrder!=null) {
-            wfWorkOrder.setBulkStatus("Failed");
-            wfWorkOrderRepository.save(wfWorkOrder);
+            if (wfWorkOrder != null) {
+                wfWorkOrder.setBulkStatus("Failed");
+                wfWorkOrderRepository.save(wfWorkOrder);
+            }
+
+            wfWoBulkCloseQueueRepository.save(bulkOrder);
+
         }
-        log.warn("Work order {} Failed for bulk queue record id={}",
-                wfWorkOrder.getWorkOrderId(), bulkOrder.getId());
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
     }
 
     /**
@@ -62,7 +66,6 @@ public class Validation {
     public void validateAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
 
         if (workorder == null) {
-            log.warn("Work order not found for queue id={}. Marking Rejected.", queue.getId());
             rejectWo(queue, workorder,"Work order not found");
             return;
         }

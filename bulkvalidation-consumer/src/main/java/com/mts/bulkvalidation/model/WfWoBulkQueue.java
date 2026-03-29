@@ -84,6 +84,11 @@ public class WfWoBulkQueue {
     @Column(name="FAIL_REASON")
     private String failReason;
 
+    @Column(name="VALIDATION_TYPE")
+    private String validationType;
+
+
+
 
 
 }

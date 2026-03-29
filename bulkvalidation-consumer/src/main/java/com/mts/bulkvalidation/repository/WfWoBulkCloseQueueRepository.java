@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface WfWoBulkCloseQueueRepository extends JpaRepository<WfWoBulkQueue, Long>, JpaSpecificationExecutor<WfWoBulkQueue> {
 
     boolean existsByWorkOrderIdAndRecordStatusIn(String workOrderId, List<String> statuses);
+    List<WfWoBulkQueue> findByRecordStatus(String recordStatus);
+
 }

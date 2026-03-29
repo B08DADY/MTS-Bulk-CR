@@ -2,7 +2,6 @@ package com.mts.bulkvalidation;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.kafka.annotation.EnableKafka;
 
 /**
  * Entry point for the Bulk Validation Consumer application.
@@ -15,7 +14,6 @@ import org.springframework.kafka.annotation.EnableKafka;
  * change pom.xml packaging to "war".
  */
 @SpringBootApplication
-@EnableKafka
 public class BulkValidationConsumerApplication {
 
     public static void main(String[] args) {

@@ -74,14 +74,12 @@ public class Mapper {
         return dto;
     }
 
-    // ── BsCfgReqType → ReqTypeResponse ───────────────────────────────────────
 
     public static ReqTypeResponse toReqTypeResponse(BsCfgReqType entity) {
         ReqTypeResponse dto = new ReqTypeResponse();
         dto.setRequestType(entity.getRequestType());
         return dto;
     }
-    // ── ImportBulkRequest → WfWoBulkQueue ────────────────────────────────────
 
     public static WfWoBulkQueue RetailSuccessBulkRequestToWfWoBulkQueue(ImportRetailSuccessBulkRequest dto) {
 
@@ -101,12 +99,9 @@ public class Mapper {
         entity.setMacAddress(dto.getMacAddress());
         entity.setFileId(dto.getFileId());
 
+        entity.setValidationType("RETAIL_SUCCESS");
 
 
-        // we need to set the file id
-
-        // workOrderId is managed via the WfWorkOrder JPA relation;
-        //  entity.setWorkerOrder(dto.getWorkerId());
         return entity;
     }
 
@@ -124,12 +119,8 @@ public class Mapper {
         entity.setCloseCode(dto.getCloseCode());
         entity.setRecordStatus("NEW");
         entity.setFileId(dto.getFileId());
+        entity.setValidationType("RETAIL_FAIL");
 
-
-        // we need to set the file id
-
-        // workOrderId is managed via the WfWorkOrder JPA relation;
-        //  entity.setWorkerOrder(dto.getWorkerId());
         return entity;
     }
 
@@ -150,8 +141,9 @@ public class Mapper {
         entity.setBox(dto.getBox());
         entity.setCabinet(dto.getCabinet());
         entity.setFileId(dto.getFileId());
+        entity.setValidationType("FO");
 
-        // we need to set the file id
+
 
         return entity;
     }

@@ -21,8 +21,7 @@ public class ImportFoService {
     @Autowired
     private WfWoBulkCloseQueueRepository wfWoBulkCloseQueueRepository;
 
-    @Autowired
-    private BulkQueueEventPublisher bulkQueueEventPublisher;
+
 
     @Autowired
     private WfWorkOrderRepository wfWorkOrderRepository;
@@ -50,8 +49,6 @@ public class ImportFoService {
 
         // Publish a Kafka event for each saved record so the consumer
         // can run FoValidation asynchronously.
-        bulkQueueEventPublisher.publish(savedRecords, "FO");
-
         return sharedFileId;
     }
 }

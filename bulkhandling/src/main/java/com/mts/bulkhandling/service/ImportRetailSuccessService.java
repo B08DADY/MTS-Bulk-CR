@@ -21,8 +21,6 @@ public class ImportRetailSuccessService {
     @Autowired
     private WfWoBulkCloseQueueRepository wfWoBulkCloseQueueRepository;
 
-    @Autowired
-    private BulkQueueEventPublisher bulkQueueEventPublisher;
 
     @Autowired
     private WfWorkOrderRepository wfWorkOrderRepository;
@@ -49,7 +47,6 @@ public class ImportRetailSuccessService {
 
         // Publish a Kafka event for each saved record so the consumer
         // can run RetailSuccessValidation asynchronously.
-        bulkQueueEventPublisher.publish(savedRecords, "RETAIL_SUCCESS");
         return sharedFileId;
     }
 }
