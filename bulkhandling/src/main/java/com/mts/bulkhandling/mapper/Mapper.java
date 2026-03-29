@@ -101,6 +101,7 @@ public class Mapper {
         entity.setMacAddress(dto.getMacAddress());
         entity.setFileId(dto.getFileId());
 
+        entity.setValidationType("RETAIL_SUCCESS");
 
 
         // we need to set the file id
@@ -124,6 +125,7 @@ public class Mapper {
         entity.setCloseCode(dto.getCloseCode());
         entity.setRecordStatus("NEW");
         entity.setFileId(dto.getFileId());
+        entity.setValidationType("RETAIL_FAIL");
 
 
         // we need to set the file id
@@ -150,6 +152,8 @@ public class Mapper {
         entity.setBox(dto.getBox());
         entity.setCabinet(dto.getCabinet());
         entity.setFileId(dto.getFileId());
+        entity.setValidationType("FO");
+
 
         // we need to set the file id
 
