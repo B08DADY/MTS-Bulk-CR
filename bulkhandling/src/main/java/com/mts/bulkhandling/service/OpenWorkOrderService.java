@@ -32,13 +32,28 @@ public class OpenWorkOrderService {
     public Page<OpenedWoSearchResponse> search(WoSearchRequest request) {
         if(request.getOrganization() == null)
             throw new RuntimeException("organization is mandatory");
-
-        Sort sort = buildSort(request);
+        if (request == null) {
+            throw new IllegalArgumentException("Search request must not be null");
+        }
+        if (request.getPage() < 0 || request.getSize() <= 0) {
+            throw new IllegalArgumentException("Invalid pagination parameters: page=" + request.getPage() + ", size=" + request.getSize());
+        }
+        try {
+            Sort sort = buildSort(request);
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-        Specification<WfWorkOrder> spec = WorkOrderSpecification.buildSearchSpec(request);
+            Specification<WfWorkOrder> spec = WorkOrderSpecification.buildSearchSpec(request);
 
-        Page<WfWorkOrder> workOrderPage = workOrderRepository.findAll(spec, pageable);
-        return workOrderPage.map(Mapper::toOpenedWoSearchResponse);
+            Page<WfWorkOrder> workOrderPage = workOrderRepository.findAll(spec, pageable);
+            return workOrderPage.map(Mapper::toOpenedWoSearchResponse);
+        }catch (IllegalArgumentException e) {
+            throw e;
+        }
+        catch (org.springframework.dao.DataAccessException e) {
+            throw new RuntimeException("Failed to retrieve bulk queue data due to a database error", e);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while processing the search request", e);
+        }
     }
 
 

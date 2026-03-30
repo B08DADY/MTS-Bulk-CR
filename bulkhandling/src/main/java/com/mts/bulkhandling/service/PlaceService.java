@@ -23,9 +23,22 @@ public class PlaceService {
      * @return list of matching places (id + placeName only)
      */
     public List<PlaceResponse> getPlacesByOrganization(String organizationName) {
+        if (organizationName == null || organizationName.isEmpty()) {
+            throw new IllegalArgumentException("Organization name must not be null or empty");
+        }
+        try {
         return placeRepository.findByOrgRoleId(organizationName)
                 .stream()
                 .map(Mapper::toPlaceResponse)
                 .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw e;
+
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new RuntimeException("Failed to retrieve places due to a database error", e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while retrieving places", e);
+        }
     }
 }

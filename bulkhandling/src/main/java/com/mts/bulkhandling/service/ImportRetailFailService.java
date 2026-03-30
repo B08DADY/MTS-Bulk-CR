@@ -29,6 +29,10 @@ public class ImportRetailFailService {
 
     @Transactional
     public String execute(List<ImportRetailFailBulkRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            throw new IllegalArgumentException("Request list must not be null or empty");
+        }
+        try {
         List<WfWoBulkQueue> records = new ArrayList<>();
         String sharedFileId = UUID.randomUUID().toString();
 
@@ -51,6 +55,15 @@ public class ImportRetailFailService {
         // can run RetailFailValidation asynchronously.
         bulkQueueEventPublisher.publish(savedRecords, "RETAIL_FAIL");
         return sharedFileId;
+        } catch (IllegalArgumentException e) {
+            throw e;
+
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new RuntimeException("Failed to save bulk queue records due to a database error", e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while processing the import request", e);
+        }
     }
 }
 

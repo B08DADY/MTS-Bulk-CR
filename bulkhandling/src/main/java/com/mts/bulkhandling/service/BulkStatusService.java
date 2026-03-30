@@ -14,9 +14,16 @@ public class BulkStatusService {
     private LkpBulkStatusRepository repository;
 
     public List<String> getAllStatuses() {
-        return repository.findAll()
-                .stream()
-                .map(LkpBulkStatus::getStatus)
-                .collect(Collectors.toList());
+        try {
+            return repository.findAll()
+                    .stream()
+                    .map(LkpBulkStatus::getStatus)
+                    .collect(Collectors.toList());
+        }catch (org.springframework.dao.DataAccessException e) {
+            throw new RuntimeException("Failed to retrieve bulk statuses due to a database error", e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while retrieving bulk statuses", e);
+        }
     }
 }

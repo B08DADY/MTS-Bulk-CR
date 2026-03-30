@@ -25,10 +25,17 @@ public class ReqTypeService {
      * @return list of matching request types
      */
     public List<ReqTypeResponse> getFoFtthRequestTypes() {
+        try {
         return reqTypeRepository.findByRequestTypeDesc(FO_FTTH_DESC)
                 .stream()
                 .map(Mapper::toReqTypeResponse)
                 .collect(Collectors.toList());
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new RuntimeException("Failed to retrieve request types due to a database error", e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while retrieving request types", e);
+        }
     }
 
 }

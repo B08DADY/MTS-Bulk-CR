@@ -77,8 +77,7 @@ public class SearchBulkController {
             @RequestBody WoSearchRequest request
     ) {
         try {
-            Pageable pageable = PageRequest.of(request.getPage() ,request.getSize());
-            Page<HandledWoSearchResponse> result = handlingBulkQueueService.search(request, pageable);
+            Page<HandledWoSearchResponse> result = handlingBulkQueueService.search(request);
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
