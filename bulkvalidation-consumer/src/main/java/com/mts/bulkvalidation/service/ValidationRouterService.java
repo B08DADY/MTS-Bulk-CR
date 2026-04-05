@@ -9,11 +9,15 @@ import com.mts.bulkvalidation.mapper.Mapper;
 import com.mts.bulkvalidation.model.WfWoBulkQueue;
 import com.mts.bulkvalidation.model.WfWorkOrder;
 import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
+import com.mts.bulkvalidation.repository.WfWorkOrderItemRepository;
 import com.mts.bulkvalidation.repository.WfWorkOrderRepository;
 
+import com.mts.bulkvalidation.repository.projection.WorkInstanceProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,6 +54,9 @@ public class ValidationRouterService {
     @Autowired
     private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
 
+    @Autowired
+    private  WfWorkOrderItemRepository workOrderItemRepository;
+
 
     @EventListener(ApplicationReadyEvent.class)
     public void validate() {
@@ -60,10 +67,19 @@ public class ValidationRouterService {
         if (queue.isEmpty()) {
             return;
         }
-
+        Pageable pageable = PageRequest.of(0, 1);
         for(WfWoBulkQueue order:queue){
             String type=order.getValidationType();
             WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
+
+            List<WorkInstanceProjection> results = workOrderItemRepository
+                    .findTopStartedWork(order.getWorkOrderId(), pageable);
+
+            Long workId     = results.get(0).getWorkId();
+            Long instanceId = results.get(0).getInstanceId();
+
+            order.setWorkId(workId);
+
 
             validation.validateAfterBulkQueue(wo, order);
 
@@ -96,7 +112,7 @@ public class ValidationRouterService {
                 wfWoBulkCloseQueueRepository.save(order);
 
                 // call the terminate and the generate
-                BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order);
+                BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,instanceId);
 
                 bulkTerminateAndGenerateService.execute(request);
 

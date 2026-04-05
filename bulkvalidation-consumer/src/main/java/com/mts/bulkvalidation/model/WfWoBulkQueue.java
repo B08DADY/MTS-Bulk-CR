@@ -87,8 +87,9 @@ public class WfWoBulkQueue {
     @Column(name="VALIDATION_TYPE")
     private String validationType;
 
-    @Column(name="CURRENT_WORKSPEC")
-    private String currentWorkSpec;
+    @Column(name="WORK_ID")
+    private Long workId;
+
 
 
 

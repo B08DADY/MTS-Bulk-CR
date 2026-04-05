@@ -5,6 +5,7 @@ import com.mts.bulkvalidation.dto.BulkTerminateRequest;
 import com.mts.bulkvalidation.repository.WfWorkOrderItemRepository;
 import com.mts.bulkvalidation.repository.projection.WorkInstanceProjection;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,25 +21,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BulkTerminateAndGenerateService {
 
-    private final WfWorkOrderItemRepository workOrderItemRepository;
+
     private final EntityManager entityManager;
 
     public String execute(BulkTerminateRequest request) {
 
-        Pageable pageable = PageRequest.of(0, 1);
 
-        List<WorkInstanceProjection> results = workOrderItemRepository
-                .findTopStartedWork(request.getWorkOrderId(), pageable);
-
-        if (results.isEmpty()) {
-            throw new EntityNotFoundException(
-                    "No started work found for workOrderId: " + request.getWorkOrderId()
-            );
-        }
-
-
-        Long workId     = results.get(0).getWorkId();
-        Long instanceId = results.get(0).getInstanceId();
 
         // Step 2: Call the stored procedure via JPA StoredProcedureQuery
         StoredProcedureQuery query = entityManager
@@ -61,8 +49,8 @@ public class BulkTerminateAndGenerateService {
         query.setParameter("P_CLOSE_NAME",    request.getCloseName());
         query.setParameter("P_NOTES",         request.getNotes());
         query.setParameter("P_REQ_TYPE",      request.getReqType());
-        query.setParameter("P_WORK_ID",       workId);      // fetched above
-        query.setParameter("P_INSTANCE_ID",   instanceId);  // fetched above
+        query.setParameter("P_WORK_ID",       request.getWorkId());      // fetched above
+        query.setParameter("P_INSTANCE_ID",   request.getInstanceId());  // fetched above
 
         query.execute();
 

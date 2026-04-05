@@ -11,4 +11,6 @@ public class BulkTerminateRequest {
     private String closeName;
     private String notes;
     private String reqType;
+    private Long workId;
+    private Long instanceId;
 }
