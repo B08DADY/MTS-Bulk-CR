@@ -39,7 +39,6 @@ public class ImportFoService {
             request.setFileId(sharedFileId);
             WfWoBulkQueue wfWoBulkQueue = Mapper.FoBulkRequestToWfWoBulkQueue(request);
             wfWoBulkQueue.setWorkOrder(workOrder.get());
-            wfWoBulkQueue.setCurrentWorkSpec(workOrder.get().getCurrentWorkspec());
             records.add(wfWoBulkQueue);
 
 

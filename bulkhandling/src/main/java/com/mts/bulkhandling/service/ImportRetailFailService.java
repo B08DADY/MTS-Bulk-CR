@@ -39,7 +39,6 @@ public class ImportRetailFailService {
             request.setFileId(sharedFileId);
             WfWoBulkQueue wfWoBulkQueue = Mapper.RetailFailBulkRequestToWfWoBulkQueue(request);
             wfWoBulkQueue.setWorkOrder(workOrder.get());
-            wfWoBulkQueue.setCurrentWorkSpec(workOrder.get().getCurrentWorkspec());
             records.add(wfWoBulkQueue);
         }
 

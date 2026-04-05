@@ -33,14 +33,9 @@ public class BulkTerminateAndGenerateService {
                 .createStoredProcedureQuery("BULK_TERMINATE_AND_GENERATE");
 
         query.registerStoredProcedureParameter("P_work_order_id", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_NEW_STATUS",    String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_NEW_ACTIVITY",  String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_CATEGORY_ID",   String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("P_CLOSE_NAME",    String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("P_NOTES",         String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("P_REQ_TYPE",      String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_SEQ",           String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("P_UPDATE_BY",     String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("P_WORK_ID",       Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_INSTANCE_ID",   Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("o_gen_task_id",   String.class, ParameterMode.OUT);

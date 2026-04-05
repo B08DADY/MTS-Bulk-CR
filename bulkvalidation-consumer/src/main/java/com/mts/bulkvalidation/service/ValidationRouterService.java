@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 /**
@@ -74,6 +75,11 @@ public class ValidationRouterService {
 
             List<WorkInstanceProjection> results = workOrderItemRepository
                     .findTopStartedWork(order.getWorkOrderId(), pageable);
+
+            if (results.isEmpty()) {
+                validation.rejectWo(order,wo,"Status of work order is not Started");
+                continue;
+            }
 
             Long workId     = results.get(0).getWorkId();
             Long instanceId = results.get(0).getInstanceId();
