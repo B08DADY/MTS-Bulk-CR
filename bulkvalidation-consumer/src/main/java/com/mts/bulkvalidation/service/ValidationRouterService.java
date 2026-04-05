@@ -4,6 +4,8 @@ import com.mts.bulkvalidation.bulkvalidation.FoValidation;
 import com.mts.bulkvalidation.bulkvalidation.RetailFailValidation;
 import com.mts.bulkvalidation.bulkvalidation.RetailSuccessValidation;
 import com.mts.bulkvalidation.bulkvalidation.Validation;
+import com.mts.bulkvalidation.dto.BulkTerminateRequest;
+import com.mts.bulkvalidation.mapper.Mapper;
 import com.mts.bulkvalidation.model.WfWoBulkQueue;
 import com.mts.bulkvalidation.model.WfWorkOrder;
 import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
@@ -24,7 +26,7 @@ import java.util.List;
  *   4. Marks the record "Validated" if all checks pass
  */
 @Service
-public class ValidationRouter {
+public class ValidationRouterService {
 
 
     @Autowired
@@ -45,6 +47,10 @@ public class ValidationRouter {
     @Autowired
     private RetailFailValidation retailFailValidation;
 
+    @Autowired
+    private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
+
+
     @EventListener(ApplicationReadyEvent.class)
     public void validate() {
 
@@ -61,7 +67,7 @@ public class ValidationRouter {
 
             validation.validateAfterBulkQueue(wo, order);
 
-            if ("Failed".equals(order.getRecordStatus())) {
+            if ("Rejected".equals(order.getRecordStatus())) {
                 continue;
             }
             switch (type) {
@@ -83,11 +89,16 @@ public class ValidationRouter {
                 default:
                     break;
             }
-            if (!"Failed".equals(order.getRecordStatus())) {
+            if (!"Rejected".equals(order.getRecordStatus())) {
                 order.setRecordStatus("Pending Validation");
                 wo.setBulkStatus("Pending Validation");
                 wfWorkOrderRepository.save(wo);
                 wfWoBulkCloseQueueRepository.save(order);
+
+                // call the terminate and the generate
+                BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order);
+
+                bulkTerminateAndGenerateService.execute(request);
 
 
             }

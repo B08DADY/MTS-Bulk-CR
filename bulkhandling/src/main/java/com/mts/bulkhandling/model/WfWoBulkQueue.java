@@ -89,6 +89,10 @@ public class WfWoBulkQueue {
     private String validationType;
 
 
+    @Column(name="CURRENT_WORKSPEC")
+    private String currentWorkSpec;
+
+
 
 
 

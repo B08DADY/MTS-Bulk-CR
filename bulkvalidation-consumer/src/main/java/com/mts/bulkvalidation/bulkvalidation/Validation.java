@@ -39,11 +39,11 @@ public class Validation {
      */
     public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder,String reason ) {
         try {
-            bulkOrder.setRecordStatus("Failed");
+            bulkOrder.setRecordStatus("Rejected");
             bulkOrder.setFailReason(reason);
 
             if (wfWorkOrder != null) {
-                wfWorkOrder.setBulkStatus("Failed");
+                wfWorkOrder.setBulkStatus("Rejected");
                 wfWorkOrderRepository.save(wfWorkOrder);
             }
 
