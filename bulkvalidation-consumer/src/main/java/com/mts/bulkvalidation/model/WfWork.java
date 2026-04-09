@@ -26,5 +26,9 @@ public class WfWork {
     @Column(name = "STATUS")
     private String status;
 
+    @Column(name="ACCEPT_FLAG")
+    private Long acceptFlag;
+
+
 
 }

@@ -2,8 +2,10 @@ package com.mts.bulkhandling.service;
 
 import com.mts.bulkhandling.dto.ImportFoBulkRequest;
 import com.mts.bulkhandling.mapper.Mapper;
+import com.mts.bulkhandling.model.BsCfgReqType;
 import com.mts.bulkhandling.model.WfWoBulkQueue;
 import com.mts.bulkhandling.model.WfWorkOrder;
+import com.mts.bulkhandling.repository.BsCfgReqTypeRepository;
 import com.mts.bulkhandling.repository.WfWoBulkCloseQueueRepository;
 import com.mts.bulkhandling.repository.WfWorkOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class ImportFoService {
     @Autowired
     private WfWorkOrderRepository wfWorkOrderRepository;
 
+    @Autowired
+    private BsCfgReqTypeRepository bsCfgReqTypeRepository;
+
     @Transactional
     public String execute(List<ImportFoBulkRequest> requests) {
         List<WfWoBulkQueue> records = new ArrayList<>();
@@ -36,11 +41,13 @@ public class ImportFoService {
             if (!workOrder.isPresent()) {
                 throw new RuntimeException("Work order not found: " + request.getWorkOrderId());
             }
+            BsCfgReqType reqType = bsCfgReqTypeRepository.findById(request.getRequestType()).orElse(null);
             request.setFileId(sharedFileId);
             WfWoBulkQueue wfWoBulkQueue = Mapper.FoBulkRequestToWfWoBulkQueue(request);
             wfWoBulkQueue.setWorkOrder(workOrder.get());
+            if(reqType!=null)
+                 wfWoBulkQueue.setBulkReqCategory(reqType.getBulkReqCategory());
             records.add(wfWoBulkQueue);
-
 
         }
 

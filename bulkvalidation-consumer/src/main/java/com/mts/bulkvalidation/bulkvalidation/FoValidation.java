@@ -18,8 +18,6 @@ public class FoValidation extends Validation {
 
     private static final Logger log = LoggerFactory.getLogger(FoValidation.class);
 
-    @Autowired
-    private BsCfgReqTypeRepository bsCfgReqTypeRepository;
 
     /**
      * Validates that box/cabinet are provided when the request category
@@ -27,11 +25,8 @@ public class FoValidation extends Validation {
      */
     public void validateFoAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
 
-        BsCfgReqType reqType = bsCfgReqTypeRepository.findById(queue.getRequestType()).orElse(null);
 
-
-
-        String category = reqType.getBulkReqCategory();
+        String category = queue.getBulkReqCategory();
         boolean categoryExempt = "Fix Cross Connection".equals(category) || "Resurvey".equals(category);
 
         if (!categoryExempt && (queue.getBox() == null || queue.getCabinet() == null)) {

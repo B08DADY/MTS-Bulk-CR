@@ -90,6 +90,9 @@ public class WfWoBulkQueue {
     @Column(name="WORK_ID")
     private Long workId;
 
+    @Column(name="BULK_REQ_CATEGORY")
+    private String bulkReqCategory;
+
 
 
 

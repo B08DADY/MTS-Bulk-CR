@@ -6,11 +6,11 @@ import com.mts.bulkvalidation.bulkvalidation.RetailSuccessValidation;
 import com.mts.bulkvalidation.bulkvalidation.Validation;
 import com.mts.bulkvalidation.dto.BulkTerminateRequest;
 import com.mts.bulkvalidation.mapper.Mapper;
+import com.mts.bulkvalidation.model.WfWoAdditionalAttribute;
 import com.mts.bulkvalidation.model.WfWoBulkQueue;
+import com.mts.bulkvalidation.model.WfWork;
 import com.mts.bulkvalidation.model.WfWorkOrder;
-import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
-import com.mts.bulkvalidation.repository.WfWorkOrderItemRepository;
-import com.mts.bulkvalidation.repository.WfWorkOrderRepository;
+import com.mts.bulkvalidation.repository.*;
 
 import com.mts.bulkvalidation.repository.projection.WorkInstanceProjection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * Orchestrates the full validation flow for a single BulkQueueEvent:
@@ -56,9 +58,17 @@ public class ValidationRouterService {
     private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
 
     @Autowired
+    private UpdateAcceptFlagService updateAcceptFlagService;
+
+    @Autowired
     private  WfWorkOrderItemRepository workOrderItemRepository;
 
+    @Autowired
+    private WfWoAdditionalAttributeRepository wfWoAdditionalAttributeRepository;
 
+
+
+    @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void validate() {
 
@@ -68,68 +78,99 @@ public class ValidationRouterService {
         if (queue.isEmpty()) {
             return;
         }
-        Pageable pageable = PageRequest.of(0, 1);
+
         for(WfWoBulkQueue order:queue){
-            String type=order.getValidationType();
-            WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
 
-            List<WorkInstanceProjection> results = workOrderItemRepository
-                    .findTopStartedWork(order.getWorkOrderId(), pageable);
-
-            if (results.isEmpty()) {
-                validation.rejectWo(order,wo,"Status of work order is not Started");
-                continue;
+            try {
+                validateSingleOrder(order);
+            }
+            catch (Exception e){
+                log.println(e.getMessage());
             }
 
-            Long workId     = results.get(0).getWorkId();
-            Long instanceId = results.get(0).getInstanceId();
-
-            order.setWorkId(workId);
-
-
-            validation.validateAfterBulkQueue(wo, order);
-
-            if ("Rejected".equals(order.getRecordStatus())) {
-                continue;
-            }
-            switch (type) {
-                case "FO":
-                    foValidation.validateFoAfterBulkQueue(wo, order);
-                    break;
-
-                case "RETAIL_SUCCESS":
-                    // Build a lightweight DTO from the queue record so the validator
-                    // can access deviceType without a separate DB query.
-
-                    retailSuccessValidation.validateRetailSuccessAfterBulkQueue(wo, order);
-                    break;
-
-                case "RETAIL_FAIL":
-                    retailFailValidation.validateRetailFailAfterBulkQueue(wo, order);
-                    break;
-
-                default:
-                    break;
-            }
-            if (!"Rejected".equals(order.getRecordStatus())) {
-                order.setRecordStatus("Pending Validation");
-                wo.setBulkStatus("Pending Validation");
-                wfWorkOrderRepository.save(wo);
-                wfWoBulkCloseQueueRepository.save(order);
-
-                // call the terminate and the generate
-                BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,instanceId);
-
-                bulkTerminateAndGenerateService.execute(request);
-
-
-            }
 
 
         }
 
+    }
 
 
+    @Transactional
+    public void validateSingleOrder(WfWoBulkQueue order){
+        Pageable pageable = PageRequest.of(0, 1);
+        String type=order.getValidationType();
+
+        WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
+
+        List<WorkInstanceProjection> results = workOrderItemRepository
+                .findTopStartedWork(order.getWorkOrderId(), pageable);
+
+        if(wo==null){
+            validation.rejectWo(order,wo,"This Work Order is not Exist");
+            throw new RuntimeException("This Work Order is not Exist " + order.getWorkOrderId());
+        }
+
+        if (results.isEmpty()) {
+            validation.rejectWo(order,wo,"Status of work order is not Started");
+            throw new RuntimeException("Work order not found: " + order.getWorkOrderId());
+        }
+
+        Long workId     = results.get(0).getWorkId();
+        Long instanceId = results.get(0).getInstanceId();
+
+        order.setWorkId(workId);
+
+
+        validation.validateAfterBulkQueue(wo, order);
+
+        if ("Rejected".equals(order.getRecordStatus())) {
+            return;
+        }
+        switch (type) {
+            case "FO":
+                foValidation.validateFoAfterBulkQueue(wo, order);
+                break;
+
+            case "RETAIL_SUCCESS":
+                // Build a lightweight DTO from the queue record so the validator
+                // can access deviceType without a separate DB query.
+
+                retailSuccessValidation.validateRetailSuccessAfterBulkQueue(wo, order);
+                break;
+
+            case "RETAIL_FAIL":
+                retailFailValidation.validateRetailFailAfterBulkQueue(wo, order);
+                break;
+
+            default:
+                break;
+        }
+        if (!"Rejected".equals(order.getRecordStatus())) {
+            order.setRecordStatus("Pending Validation");
+            wo.setBulkStatus("Pending Validation");
+            wfWorkOrderRepository.save(wo);
+            wfWoBulkCloseQueueRepository.save(order);
+
+            // call the terminate and the generate
+            BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,instanceId);
+
+
+                List<WfWoAdditionalAttribute> additionalAttributes=Mapper.getAdditionalAttributes(order);
+
+                for(WfWoAdditionalAttribute attribute:additionalAttributes){
+                    if(attribute.getAttId()!=null){
+                        wfWoAdditionalAttributeRepository.save(attribute);
+                    }
+                }
+            bulkTerminateAndGenerateService.execute(request);
+
+            //activate
+
+            updateAcceptFlagService.excute(order,wo);
+
+
+
+        }
 
     }
 

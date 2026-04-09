@@ -10,10 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 
@@ -24,6 +29,7 @@ public class BulkTerminateAndGenerateService {
 
     private final EntityManager entityManager;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String execute(BulkTerminateRequest request) {
 
 
