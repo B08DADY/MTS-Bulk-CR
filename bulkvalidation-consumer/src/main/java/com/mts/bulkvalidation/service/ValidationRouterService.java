@@ -108,14 +108,8 @@ public class ValidationRouterService {
         }
 
 
-        if(wo==null){
-            validation.rejectWo(order,wo,"This Work Order is not Exist");
-            throw new RuntimeException("This Work Order is not Exist " + order.getWorkOrderId());
-        }
-
         if (results.isEmpty()) {
-            validation.rejectWo(order,wo,"Status of work order reached PNR");
-            throw new RuntimeException("Work order not found: " + order.getWorkOrderId());
+            validation.rejectWo(order,wo,"Order Reached PONR");
         }
 
         Long workId     = results.get(0).getWorkId();

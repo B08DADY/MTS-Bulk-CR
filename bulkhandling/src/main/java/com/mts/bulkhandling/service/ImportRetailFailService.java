@@ -32,13 +32,12 @@ public class ImportRetailFailService {
         String sharedFileId = UUID.randomUUID().toString();
 
         for (ImportRetailFailBulkRequest request : requests) {
-            Optional<WfWorkOrder> workOrder = wfWorkOrderRepository.findById(request.getWorkOrderId());
-            if (!workOrder.isPresent()) {
+            WfWorkOrder workOrder = wfWorkOrderRepository.findById(request.getWorkOrderId()).orElse(null);
+            if (workOrder==null) {
                 throw new RuntimeException("Work order not found: " + request.getWorkOrderId());
             }
             request.setFileId(sharedFileId);
-            WfWoBulkQueue wfWoBulkQueue = Mapper.RetailFailBulkRequestToWfWoBulkQueue(request);
-            wfWoBulkQueue.setWorkOrder(workOrder.get());
+            WfWoBulkQueue wfWoBulkQueue = Mapper.RetailFailBulkRequestToWfWoBulkQueue(request,workOrder);
             records.add(wfWoBulkQueue);
         }
 

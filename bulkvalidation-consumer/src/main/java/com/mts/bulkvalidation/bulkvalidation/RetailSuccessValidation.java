@@ -40,7 +40,7 @@ public class RetailSuccessValidation extends Validation {
 
 
         if(reqClose.getCategory()!=1){
-            rejectWo(queue, workorder,"This close code is not for retail success");
+            rejectWo(queue, workorder,"Invalid Close Code");
         }
 
 
@@ -59,7 +59,7 @@ public class RetailSuccessValidation extends Validation {
         if (!deviceValid) {
             log.warn("Device type '{}' incompatible with service type '{}' for queue id={}. Rejecting.",
                     queue.getDeviceType(), reqType.getServiceType(), queue.getId());
-            rejectWo(queue, workorder,"Device type incompatible with service type ");
+            rejectWo(queue, workorder,"Invalid technical data");
         }
     }
 }

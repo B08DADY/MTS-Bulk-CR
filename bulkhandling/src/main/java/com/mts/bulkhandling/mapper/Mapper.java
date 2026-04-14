@@ -89,7 +89,6 @@ public class Mapper {
         entity.setReferenceId(dto.getReferenceId());
         entity.setUserId(dto.getUserId());
         entity.setRequestType(dto.getRequestType());
-        entity.setPlace(dto.getPlace());
         entity.setActionDate(LocalDateTime.now());
         entity.setWorkerId(dto.getWorkerId());
         entity.setCloseCode(dto.getCloseCode());
@@ -105,7 +104,7 @@ public class Mapper {
         return entity;
     }
 
-    public static WfWoBulkQueue RetailFailBulkRequestToWfWoBulkQueue(ImportRetailFailBulkRequest dto) {
+    public static WfWoBulkQueue RetailFailBulkRequestToWfWoBulkQueue(ImportRetailFailBulkRequest dto,WfWorkOrder workOrder) {
 
         WfWoBulkQueue entity = new WfWoBulkQueue();
         entity.setOrganizationUnit(dto.getOrganizationUnit());
@@ -113,19 +112,21 @@ public class Mapper {
         entity.setReferenceId(dto.getReferenceId());
         entity.setUserId(dto.getUserId());
         entity.setRequestType(dto.getRequestType());
-        entity.setPlace(dto.getPlace());
         entity.setActionDate(LocalDateTime.now());
         entity.setWorkerId(dto.getWorkerId());
         entity.setCloseCode(dto.getCloseCode());
         entity.setRecordStatus("NEW");
         entity.setFileId(dto.getFileId());
         entity.setValidationType("RETAIL_FAIL");
+        entity.setPlace(workOrder.getPlaceName());
+        entity.setWorkOrder(workOrder);
+
 
         return entity;
     }
 
 
-    public static WfWoBulkQueue FoBulkRequestToWfWoBulkQueue(ImportFoBulkRequest dto) {
+    public static WfWoBulkQueue FoBulkRequestToWfWoBulkQueue(ImportFoBulkRequest dto,WfWorkOrder workOrder) {
 
         WfWoBulkQueue entity = new WfWoBulkQueue();
         entity.setOrganizationUnit(dto.getOrganizationUnit());
@@ -133,7 +134,7 @@ public class Mapper {
         entity.setReferenceId(dto.getReferenceId());
         entity.setUserId(dto.getUserId());
         entity.setRequestType(dto.getRequestType());
-        entity.setPlace(dto.getPlace());
+
         entity.setActionDate(LocalDateTime.now());
         entity.setWorkerId(dto.getWorkerId());
         entity.setCloseCode(dto.getCloseCode());
@@ -142,6 +143,9 @@ public class Mapper {
         entity.setCabinet(dto.getCabinet());
         entity.setFileId(dto.getFileId());
         entity.setValidationType("FO");
+
+        entity.setPlace(workOrder.getPlaceName());
+        entity.setWorkOrder(workOrder);
 
 
 

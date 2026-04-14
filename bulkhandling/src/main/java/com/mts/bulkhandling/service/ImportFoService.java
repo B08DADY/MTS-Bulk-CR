@@ -37,14 +37,13 @@ public class ImportFoService {
         String sharedFileId = UUID.randomUUID().toString();
 
         for (ImportFoBulkRequest request : requests) {
-            Optional<WfWorkOrder> workOrder = wfWorkOrderRepository.findById(request.getWorkOrderId());
-            if (!workOrder.isPresent()) {
+            WfWorkOrder workOrder = wfWorkOrderRepository.findById(request.getWorkOrderId()).orElse(null);
+            if (workOrder==null) {
                 throw new RuntimeException("Work order not found: " + request.getWorkOrderId());
             }
             BsCfgReqType reqType = bsCfgReqTypeRepository.findById(request.getRequestType()).orElse(null);
             request.setFileId(sharedFileId);
-            WfWoBulkQueue wfWoBulkQueue = Mapper.FoBulkRequestToWfWoBulkQueue(request);
-            wfWoBulkQueue.setWorkOrder(workOrder.get());
+            WfWoBulkQueue wfWoBulkQueue = Mapper.FoBulkRequestToWfWoBulkQueue(request,workOrder);
             if(reqType!=null)
                  wfWoBulkQueue.setBulkReqCategory(reqType.getBulkReqCategory());
             records.add(wfWoBulkQueue);

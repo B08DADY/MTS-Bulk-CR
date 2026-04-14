@@ -38,25 +38,21 @@ public class WorkOrderSpecification {
     public static Specification<WfWorkOrder> buildSearchSpec(WoSearchRequest request) {
         return (Root<WfWorkOrder> wfWorkOrderRoot, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
 
-            // JOIN wf_work_order → wf_wo_bulk_close_queue (INNER JOIN)
-//            Join<WfWorkOrder, WfWoBulkQueue> queueJoin =
-//                    wfWorkOrderRoot.join("bulkQueue", JoinType.INNER);
-
-            // Deduplicate root when fetching (avoids N+1 duplicates with pagination)
             query.distinct(true);
 
             List<Predicate> predicates = new ArrayList<>();
 
             // ── HARDCODED CONSTRAINTS ─────────────────────────────────────────
-            // 1. WO_STAGE must be IN ('Assign')
             predicates.add(wfWorkOrderRoot.get("woStage").in(STAGE_ASSIGN));
 
-            // 2. RECORD_STATUS must NOT equal 'pending validation'
-//            predicates.add(cb.notEqual(
-//                    cb.lower(wfWorkOrderRoot.get("bulkStatus")),
-//                    PENDING_VALIDATION.toLowerCase()));
-
             // ── DYNAMIC FILTERS (null-safe) ───────────────────────────────────
+
+            // fileId → join WfWoBulkQueue and filter by FILE_ID (only when provided)
+            if (hasText(request.getFileId())) {
+                Join<WfWorkOrder, WfWoBulkQueue> queueJoin =
+                        wfWorkOrderRoot.join("bulkQueue", JoinType.INNER);
+                predicates.add(cb.equal(queueJoin.get("fileId"), request.getFileId().trim()));
+            }
 
             // workOrderId
             if (hasText(request.getWorkOrderId())) {
@@ -88,21 +84,11 @@ public class WorkOrderSpecification {
                 predicates.add(cb.equal(wfWorkOrderRoot.get("requestType"), request.getRequestType().trim()));
             }
 
-            // fileId → WF_WO_BULK_CLOSE_QUEUE.FILE_ID
-//            if (request.getFileId() != null) {
-//                predicates.add(cb.equal(queueJoin.get("fileId"), request.getFileId()));
-//            }
-
-            // recordStatus → WF_WO_BULK_CLOSE_QUEUE.RECORD_STATUS
-            // User-supplied value is applied ONLY when it does not equal 'pending validation';
-            // the hardcoded exclusion above already blocks that value.
-
-
+            // bulkStatus
             if (hasText(request.getBulkStatus())
                     && !PENDING_VALIDATION.equalsIgnoreCase(request.getBulkStatus().trim())) {
 
                 if ("NEW".equalsIgnoreCase(request.getBulkStatus().trim())) {
-                    // Match rows where bulkStatus = 'NEW' OR bulkStatus IS NULL
                     predicates.add(cb.or(
                             cb.equal(wfWorkOrderRoot.get("bulkStatus"), request.getBulkStatus().trim()),
                             cb.isNull(wfWorkOrderRoot.get("bulkStatus"))
@@ -115,7 +101,6 @@ public class WorkOrderSpecification {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
-
     /** Returns true if the string is non-null and non-blank. */
     private static boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();

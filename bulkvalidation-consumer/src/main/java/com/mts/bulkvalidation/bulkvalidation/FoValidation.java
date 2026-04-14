@@ -29,15 +29,15 @@ public class FoValidation extends Validation {
 
 
         if(reqClose.getCategory()!=1){
-            rejectWo(queue, workorder,"This close code is not for FO");
+            rejectWo(queue, workorder,"Invalid Close Code");
         }
 
         String category = queue.getBulkReqCategory();
-        boolean categoryExempt = "Fix Cross Connection".equals(category) || "Resurvey".equals(category);
+        boolean categoryExempt = "1".equals(category) || "2".equals(category);
 
         if (!categoryExempt && (queue.getBox() == null || queue.getCabinet() == null)) {
             log.warn("Box/Cabinet missing for FO queue id={}. Rejecting.", queue.getId());
-            rejectWo(queue, workorder,"Box/Cabinet missing");
+            rejectWo(queue, workorder,"Invalid technical data");
         }
     }
 }

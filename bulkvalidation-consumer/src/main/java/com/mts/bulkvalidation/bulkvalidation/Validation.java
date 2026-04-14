@@ -80,9 +80,43 @@ public class Validation {
     public void validateAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
 
         if (workorder == null) {
-            rejectWo(queue, workorder,"Work order not found");
+            rejectWo(queue, workorder,"Invalid work order");
             return;
         }
+        if(queue.getWorkOrderId()==null){
+            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            return;
+        }
+        if(queue.getWorkerId()==null){
+            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            return;
+        }
+        if(queue.getCloseCode()==null){
+            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            return;
+        }
+
+        if(queue.getOrganizationUnit()==null){
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+
+        if(queue.getReferenceId()==null){
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+
+        if(queue.getServiceId()==null){
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+        if(queue.getUserId()==null){
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+
+
+
         boolean exists = wfWoBulkCloseQueueRepository
                 .existsByWorkOrderIdAndRecordStatusIn(
                         queue.getWorkOrderId(),
@@ -91,10 +125,10 @@ public class Validation {
 
         if (exists) {
             if(queue.getRecordStatus().equals("Accepted")){
-                rejectWoBulkQueue(queue,"Order is already accepted");
+                rejectWoBulkQueue(queue,"Work order already accepted");
             }
             else{
-                rejectWo(queue, workorder, "Work order already exists in queue with status Closed or Pending Validation");
+                rejectWo(queue, workorder, "Invalid work order");
                 return;
             }
         }
@@ -108,7 +142,7 @@ public class Validation {
 
         // WO must not already be closed
         if ("Close".equals(workorder.getWoStage())) {
-            rejectWo(queue, workorder,"Order is already closed");
+            rejectWo(queue, workorder,"Invalid work order");
             return;
         }
 
@@ -133,7 +167,7 @@ public class Validation {
         // Close code (request_type + close_code combo) must exist
 
         if (reqClose == null) {
-            rejectWo(queue, workorder,"Request type or close code is invalid");
+            rejectWo(queue, workorder,"Invalid Close Code");
             return;
         }
 
