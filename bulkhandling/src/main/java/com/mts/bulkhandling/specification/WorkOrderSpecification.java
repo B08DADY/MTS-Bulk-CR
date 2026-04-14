@@ -49,9 +49,13 @@ public class WorkOrderSpecification {
 
             // fileId → join WfWoBulkQueue and filter by FILE_ID (only when provided)
             if (hasText(request.getFileId())) {
-                Join<WfWorkOrder, WfWoBulkQueue> queueJoin =
-                        wfWorkOrderRoot.join("bulkQueue", JoinType.INNER);
-                predicates.add(cb.equal(queueJoin.get("fileId"), request.getFileId().trim()));
+                Subquery<String> subquery = query.subquery(String.class);
+                Root<WfWoBulkQueue> bulkQueueRoot = subquery.from(WfWoBulkQueue.class);
+
+                subquery.select(bulkQueueRoot.get("workOrderId"))
+                        .where(cb.equal(bulkQueueRoot.get("fileId"), request.getFileId().trim()));
+
+                predicates.add(wfWorkOrderRoot.get("workOrderId").in(subquery));
             }
 
             // workOrderId
