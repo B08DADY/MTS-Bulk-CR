@@ -57,8 +57,6 @@ public class ValidationRouterService {
     @Autowired
     private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
 
-    @Autowired
-    private UpdateAcceptFlagService updateAcceptFlagService;
 
     @Autowired
     private  WfWorkOrderItemRepository workOrderItemRepository;
@@ -68,7 +66,7 @@ public class ValidationRouterService {
 
 
 
-    @Transactional
+    //@Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void validate() {
 
@@ -88,22 +86,27 @@ public class ValidationRouterService {
                 log.println(e.getMessage());
             }
 
-
-
         }
 
     }
 
 
-    @Transactional
+    //@Transactional
     public void validateSingleOrder(WfWoBulkQueue order){
         Pageable pageable = PageRequest.of(0, 1);
         String type=order.getValidationType();
+        List<WorkInstanceProjection> results;
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
+        if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
+            results = workOrderItemRepository
+                    .findTopRetailWork(order.getWorkOrderId(), pageable);
+        }
+        else{
+            results = workOrderItemRepository
+                    .findTopFoWork(order.getWorkOrderId(), pageable);
+        }
 
-        List<WorkInstanceProjection> results = workOrderItemRepository
-                .findTopStartedWork(order.getWorkOrderId(), pageable);
 
         if(wo==null){
             validation.rejectWo(order,wo,"This Work Order is not Exist");
@@ -111,12 +114,13 @@ public class ValidationRouterService {
         }
 
         if (results.isEmpty()) {
-            validation.rejectWo(order,wo,"Status of work order is not Started");
+            validation.rejectWo(order,wo,"Status of work order reached PNR");
             throw new RuntimeException("Work order not found: " + order.getWorkOrderId());
         }
 
         Long workId     = results.get(0).getWorkId();
         Long instanceId = results.get(0).getInstanceId();
+
 
         order.setWorkId(workId);
 
@@ -164,10 +168,9 @@ public class ValidationRouterService {
                 }
             bulkTerminateAndGenerateService.execute(request);
 
+
+
             //activate
-
-            updateAcceptFlagService.excute(order,wo);
-
 
 
         }

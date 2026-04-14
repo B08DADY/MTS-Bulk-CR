@@ -56,6 +56,20 @@ public class Validation {
 
     }
 
+    public void rejectWoBulkQueue(WfWoBulkQueue bulkOrder, String reason ) {
+        try {
+            bulkOrder.setRecordStatus("Rejected");
+            bulkOrder.setFailReason(reason);
+
+            wfWoBulkCloseQueueRepository.save(bulkOrder);
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     /**
      * Runs the common cross-field validation rules that apply to every
      * import type (FO, Retail-Success, Retail-Fail).
@@ -72,12 +86,17 @@ public class Validation {
         boolean exists = wfWoBulkCloseQueueRepository
                 .existsByWorkOrderIdAndRecordStatusIn(
                         queue.getWorkOrderId(),
-                        Arrays.asList("Closed", "Pending Validation")
+                        Arrays.asList("Accepted", "Pending Validation")
                 );
 
         if (exists) {
-            rejectWo(queue, workorder, "Work order already exists in queue with status Closed or Pending Validation");
-            return;
+            if(queue.getRecordStatus().equals("Accepted")){
+                rejectWoBulkQueue(queue,"Order is already accepted");
+            }
+            else{
+                rejectWo(queue, workorder, "Work order already exists in queue with status Closed or Pending Validation");
+                return;
+            }
         }
 
 

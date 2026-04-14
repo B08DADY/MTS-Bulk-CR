@@ -17,8 +17,18 @@ public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem
     @Query("SELECT woi.work.workId AS workId, woi.work.instanceId AS instanceId " +
             "FROM WfWorkOrderItem woi " +
             "WHERE woi.workOrderId = :workOrderId " +
-            "AND woi.work.status = 'Started' " +
+            "AND woi.work.status IN ('Pending', 'Dispatched') " +
             "ORDER BY woi.updatedDate ASC, woi.work.workId DESC")
-    List<WorkInstanceProjection> findTopStartedWork(@Param("workOrderId") String workOrderId,
+    List<WorkInstanceProjection> findTopFoWork(@Param("workOrderId") String workOrderId,
                                                     Pageable pageable);
+
+    @Query("SELECT woi.work.workId AS workId, woi.work.instanceId AS instanceId " +
+            "FROM WfWorkOrderItem woi " +
+            "WHERE woi.workOrderId = :workOrderId " +
+            "AND woi.work.acceptFlag = 0 " +
+            "ORDER BY woi.updatedDate ASC, woi.work.workId DESC")
+    List<WorkInstanceProjection> findTopRetailWork(@Param("workOrderId") String workOrderId,
+                                                    Pageable pageable);
+
+
 }

@@ -5,6 +5,7 @@ import com.mts.bulkvalidation.dto.BulkTerminateRequest;
 import com.mts.bulkvalidation.repository.WfWorkOrderItemRepository;
 import com.mts.bulkvalidation.repository.projection.WorkInstanceProjection;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.procedure.ProcedureCall;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public class BulkTerminateAndGenerateService {
 
     private final EntityManager entityManager;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
     public String execute(BulkTerminateRequest request) {
 
 
@@ -45,6 +46,9 @@ public class BulkTerminateAndGenerateService {
         query.registerStoredProcedureParameter("P_WORK_ID",       Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_INSTANCE_ID",   Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("o_gen_task_id",   String.class, ParameterMode.OUT);
+
+        ProcedureCall procedureCall = query.unwrap(ProcedureCall.class);
+        procedureCall.getParameterRegistration("P_INSTANCE_ID").enablePassingNulls(true);
 
         query.setParameter("P_work_order_id", request.getWorkOrderId());
         query.setParameter("P_CLOSE_NAME",    request.getCloseName());
