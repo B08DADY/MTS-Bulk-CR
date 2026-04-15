@@ -35,6 +35,15 @@ public class RetailSuccessValidation extends Validation {
     public void validateRetailSuccessAfterBulkQueue(WfWorkOrder workorder,
                                                      WfWoBulkQueue queue) {
 
+        if (queue.getDeviceType()==null) {
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+        if (queue.getSerialNumber()==null) {
+            rejectWo(queue, workorder,"Incomplete parameters");
+            return;
+        }
+
         BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
         BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
 

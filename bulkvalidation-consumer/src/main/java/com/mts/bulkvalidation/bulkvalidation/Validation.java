@@ -122,10 +122,6 @@ public class Validation {
             rejectWo(queue, workorder,"Incomplete parameters");
             return;
         }
-        if(queue.getUserId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters");
-            return;
-        }
 
 
 
