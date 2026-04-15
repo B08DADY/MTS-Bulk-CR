@@ -91,10 +91,7 @@ public class Validation {
         }
 
 
-       if (workorder == null) {
-            rejectWo(queue, workorder,"Invalid work order");
-            return;
-        }
+
         if(queue.getWorkOrderId()==null){
             rejectWo(queue, workorder,"Missing Mandatory Parameter");
             return;

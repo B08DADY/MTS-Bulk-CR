@@ -98,6 +98,11 @@ public class ValidationRouterService {
         List<WorkInstanceProjection> results;
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
+        if (wo == null || wo.getWoStage().equals("Close")) {
+            validation.rejectWo(order, wo,"Invalid work order");
+            return;
+        }
+
         if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
             results = workOrderItemRepository
                     .findTopRetailWork(order.getWorkOrderId(), pageable);

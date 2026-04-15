@@ -51,6 +51,5 @@ public class Mapper {
 
         return attributes;
 
-
     }
 }
