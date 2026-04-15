@@ -34,7 +34,7 @@ public class Mapper {
 
 
         WfWoAdditionalAttribute serialNumberAtt= new WfWoAdditionalAttribute();
-        serialNumberAtt.setAttId(SerialNumberIdMap.SERIAL_IDS.get(order.getSerialNumber())); // get by request type
+        serialNumberAtt.setAttId(SerialNumberIdMap.SERIAL_IDS.get(order.getRequestType())); // get by request type
         serialNumberAtt.setWorkOrderId(order.getWorkOrderId());
         serialNumberAtt.setAttValue(order.getSerialNumber());
         serialNumberAtt.setSectionId(SectionIdMap.SECTION_IDS.get(order.getRequestType()));
