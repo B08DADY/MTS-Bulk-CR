@@ -83,7 +83,7 @@ public class ValidationRouterService {
                 validateSingleOrder(order);
             }
             catch (Exception e){
-                log.println(e.getMessage());
+              validation.rejectWoBulkQueue(order,e.getMessage());
             }
 
         }

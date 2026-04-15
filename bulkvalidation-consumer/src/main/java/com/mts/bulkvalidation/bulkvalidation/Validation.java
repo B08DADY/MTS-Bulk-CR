@@ -79,7 +79,19 @@ public class Validation {
      */
     public void validateAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
 
-        if (workorder == null) {
+        boolean exists = wfWoBulkCloseQueueRepository
+                .existsByWorkOrderIdAndRecordStatusIn(
+                        queue.getWorkOrderId(),
+                        Arrays.asList("Accepted", "Pending Validation")
+                );
+
+        if (exists) {
+            rejectWoBulkQueue(queue,"Work order already success");
+            return;
+        }
+
+
+       if (workorder == null) {
             rejectWo(queue, workorder,"Invalid work order");
             return;
         }
@@ -117,21 +129,7 @@ public class Validation {
 
 
 
-        boolean exists = wfWoBulkCloseQueueRepository
-                .existsByWorkOrderIdAndRecordStatusIn(
-                        queue.getWorkOrderId(),
-                        Arrays.asList("Accepted", "Pending Validation")
-                );
 
-        if (exists) {
-            if(queue.getRecordStatus().equals("Accepted")){
-                rejectWoBulkQueue(queue,"Work order already accepted");
-            }
-            else{
-                rejectWo(queue, workorder, "Invalid work order");
-                return;
-            }
-        }
 
 
         WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
