@@ -94,9 +94,8 @@ public class WfWoBulkQueue {
     private String bulkReqCategory;
 
 
-
-
-
+    @Column(name="CLOSE_NAME")
+    private String closeName;
 
 
 }

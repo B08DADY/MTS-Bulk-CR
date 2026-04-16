@@ -57,12 +57,18 @@ public class ValidationRouterService {
     @Autowired
     private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
 
+    @Autowired
+    private BulkWorkActivityCloseService bulkWorkActivityCloseService;
+
 
     @Autowired
     private  WfWorkOrderItemRepository workOrderItemRepository;
 
     @Autowired
     private WfWoAdditionalAttributeRepository wfWoAdditionalAttributeRepository;
+
+    @Autowired
+    private BulkAttributesMappingService bulkAttributesMappingService;
 
 
 
@@ -157,20 +163,18 @@ public class ValidationRouterService {
             // call the terminate and the generate
             BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,instanceId);
 
+            if(order.getValidationType().equals("RETAIL_FAIL")){
+                bulkWorkActivityCloseService.closeWorkActivity(request);
+                order.setRecordStatus("Accepted");
+                wfWoBulkCloseQueueRepository.save(order);
 
-                List<WfWoAdditionalAttribute> additionalAttributes=Mapper.getAdditionalAttributes(order);
-
-                for(WfWoAdditionalAttribute attribute:additionalAttributes){
-                    if(attribute.getAttId()!=null){
-                        wfWoAdditionalAttributeRepository.save(attribute);
-                    }
-                }
-            bulkTerminateAndGenerateService.execute(request);
-
-
+            }
+            else{
+                bulkAttributesMappingService.execute(order);
+                bulkTerminateAndGenerateService.execute(request);
+            }
 
             //activate
-
 
         }
 
