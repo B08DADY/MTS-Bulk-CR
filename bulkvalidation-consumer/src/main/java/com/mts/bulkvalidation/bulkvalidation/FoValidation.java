@@ -37,7 +37,7 @@ public class FoValidation extends Validation {
 
         if (!categoryExempt && (queue.getBox() == null || queue.getCabinet() == null)) {
             log.warn("Box/Cabinet missing for FO queue id={}. Rejecting.", queue.getId());
-            rejectWo(queue, workorder,"Invalid technical data");
+            rejectWo(queue, workorder,"Incomplete parameters");
         }
     }
 }

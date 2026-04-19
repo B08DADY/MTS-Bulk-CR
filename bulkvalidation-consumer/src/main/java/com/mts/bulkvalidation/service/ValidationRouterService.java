@@ -104,7 +104,7 @@ public class ValidationRouterService {
         List<WorkInstanceProjection> results;
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
-        if (wo == null || wo.getWoStage().equals("Close")) {
+        if (wo == null || (!wo.getWoStage().equals("Schedule") && !wo.getWoStage().equals("Assign"))) {
             validation.rejectWo(order, wo,"Invalid work order");
             return;
         }
@@ -121,6 +121,7 @@ public class ValidationRouterService {
 
         if (results.isEmpty()) {
             validation.rejectWo(order,wo,"Order Reached PONR");
+            return;
         }
 
         Long workId     = results.get(0).getWorkId();
@@ -173,7 +174,6 @@ public class ValidationRouterService {
                 bulkAttributesMappingService.execute(order);
                 bulkTerminateAndGenerateService.execute(request);
             }
-
             //activate
 
         }
