@@ -99,9 +99,9 @@ public class ValidationRouterService {
 
     //@Transactional
     public void validateSingleOrder(WfWoBulkQueue order){
-        Pageable pageable = PageRequest.of(0, 1);
         String type=order.getValidationType();
-        List<WorkInstanceProjection> results;
+        List<WorkInstanceProjection> results=workOrderItemRepository
+                .findOrderTasks(order.getWorkOrderId(), order.getRequestType());;
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
         if (wo == null || (!wo.getWoStage().equals("Schedule") && !wo.getWoStage().equals("Assign"))) {
@@ -109,25 +109,37 @@ public class ValidationRouterService {
             return;
         }
 
+        Long workId=null;
+        Long instanceId=null;
+
         if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
-            results = workOrderItemRepository
-                    .findTopRetailWork(order.getWorkOrderId(), pageable);
+                for(WorkInstanceProjection task:results){
+                    if(task.getAcceptFlag()==1){
+                        validation.rejectWo(order,wo,"Order Reached PONR");
+                        return;
+                    }
+                    else{
+                        workId=task.getWorkId();
+                        instanceId=task.getInstanceId();
+                    }
+                }
         }
         else{
-            results = workOrderItemRepository
-                    .findTopFoWork(order.getWorkOrderId(), pageable);
+            for(WorkInstanceProjection task:results){
+                if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")){
+                    validation.rejectWo(order,wo,"Order Reached PONR");
+                    return;
+                }
+                else{
+                    workId=task.getWorkId();
+                    instanceId=task.getInstanceId();
+                }
+            }
         }
-
-
-        if (results.isEmpty()) {
-            validation.rejectWo(order,wo,"Order Reached PONR");
+        if(workId==null){
+            validation.rejectWo(order,wo,"Current Work Id is null");
             return;
         }
-
-        Long workId     = results.get(0).getWorkId();
-        Long instanceId = results.get(0).getInstanceId();
-
-
         order.setWorkId(workId);
 
 

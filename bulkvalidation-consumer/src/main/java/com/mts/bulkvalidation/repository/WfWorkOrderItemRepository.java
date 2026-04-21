@@ -13,22 +13,16 @@ import java.util.List;
 @Repository
 public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem, Long> {
 
-
-    @Query("SELECT woi.work.workId AS workId, woi.work.instanceId AS instanceId " +
-            "FROM WfWorkOrderItem woi " +
-            "WHERE woi.workOrderId = :workOrderId " +
-            "AND woi.work.status IN ('Pending', 'Dispatched') " +
-            "ORDER BY woi.updatedDate ASC, woi.work.workId DESC")
-    List<WorkInstanceProjection> findTopFoWork(@Param("workOrderId") String workOrderId,
-                                                    Pageable pageable);
-
-    @Query("SELECT woi.work.workId AS workId, woi.work.instanceId AS instanceId " +
-            "FROM WfWorkOrderItem woi " +
-            "WHERE woi.workOrderId = :workOrderId " +
-            "AND woi.work.acceptFlag = 0 " +
-            "ORDER BY woi.updatedDate ASC, woi.work.workId DESC")
-    List<WorkInstanceProjection> findTopRetailWork(@Param("workOrderId") String workOrderId,
-                                                    Pageable pageable);
+    @Query(value = "SELECT w.work_id AS \"workId\", w.instance_id AS \"instanceId\", w.accept_flag AS \"acceptFlag\", w.status AS \"status\" " +
+            "FROM wf_work_order_item woi " +
+            "JOIN wf_work w ON w.work_id = woi.work_id " +
+            "JOIN bs_cfg_req_type_items bs ON woi.wo_item_sequence = bs.req_item_seq " +
+            "WHERE woi.work_order_id = :workOrderId " +
+            "AND bs.request_type = :requestType " +
+            "AND bs.bulk_flag = 1 " +
+            "ORDER BY w.work_id ASC", nativeQuery = true)
+    List<WorkInstanceProjection> findOrderTasks(@Param("workOrderId") String workOrderId,
+                                                @Param("requestType") String requestType);
 
 
 }
