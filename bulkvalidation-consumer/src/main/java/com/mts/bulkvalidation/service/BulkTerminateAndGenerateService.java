@@ -45,7 +45,9 @@ public class BulkTerminateAndGenerateService {
         query.registerStoredProcedureParameter("P_REQ_TYPE",      String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("P_WORK_ID",       Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_INSTANCE_ID",   Long.class,   ParameterMode.IN);
-        query.registerStoredProcedureParameter("o_gen_task_id",   String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("P_WORKER_ID",   String.class,   ParameterMode.IN);
+        query.registerStoredProcedureParameter("P_USER_ID",   String.class,   ParameterMode.IN);
+        query.registerStoredProcedureParameter("P_NEW_WORK_ID",   String.class, ParameterMode.OUT);
 
         ProcedureCall procedureCall = query.unwrap(ProcedureCall.class);
         procedureCall.getParameterRegistration("P_INSTANCE_ID").enablePassingNulls(true);
@@ -56,9 +58,11 @@ public class BulkTerminateAndGenerateService {
         query.setParameter("P_REQ_TYPE",      request.getReqType());
         query.setParameter("P_WORK_ID",       request.getWorkId());      // fetched above
         query.setParameter("P_INSTANCE_ID",   request.getInstanceId());  // fetched above
+        query.setParameter("P_WORKER_ID",   request.getWorkerId());  // fetched above
+        query.setParameter("P_USER_ID",   request.getUserId());  // fetched above
 
         query.execute();
 
-        return (String) query.getOutputParameterValue("o_gen_task_id");
+        return (String) query.getOutputParameterValue("P_NEW_WORK_ID");
     }
 }

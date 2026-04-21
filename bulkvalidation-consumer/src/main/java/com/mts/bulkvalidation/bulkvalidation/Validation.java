@@ -1,10 +1,7 @@
 package com.mts.bulkvalidation.bulkvalidation;
 
 import com.mts.bulkvalidation.model.*;
-import com.mts.bulkvalidation.repository.BsCfgReqCloseRepository;
-import com.mts.bulkvalidation.repository.WfEmpRoleRepository;
-import com.mts.bulkvalidation.repository.WfWoBulkCloseQueueRepository;
-import com.mts.bulkvalidation.repository.WfWorkOrderRepository;
+import com.mts.bulkvalidation.repository.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +28,14 @@ public class Validation {
 
     @Autowired
     protected WfEmpRoleRepository wfEmpRoleRepository;
+
+    @Autowired
+    protected WfEmpRoleReqTypeRepository wfEmpRoleReqTypeRepository;
+
+    @Autowired
+    protected WfEmpRoleZoneRepository wfEmpRoleZoneRepository;
+
+
 
 
     /**
@@ -125,7 +130,14 @@ public class Validation {
 
 
 
-        WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
+        //WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
+
+        WfEmpRoleZoneId wfEmpRoleZoneId = new WfEmpRoleZoneId(queue.getWorkerId(), Long.parseLong(workorder.getZoneId()));
+        WfEmpRoleZone wfEmpRoleZone = wfEmpRoleZoneRepository.findById(wfEmpRoleZoneId).orElse(null);
+
+        WfEmpRoleReqTypeId wfEmpRoleReqTypeId=new WfEmpRoleReqTypeId(queue.getWorkerId(), workorder.getRequestType());
+        WfEmpRoleReqType wfEmpRoleReqType= wfEmpRoleReqTypeRepository.findById(wfEmpRoleReqTypeId).orElse(null);
+
         BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
         BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
 
@@ -163,8 +175,9 @@ public class Validation {
         }
 
         // Worker ID must be a known employee role
-        if (empRole == null) {
+        if (wfEmpRoleReqType == null || wfEmpRoleZone ==null) {
             rejectWo(queue, workorder,"Invalid worker id");
+            return;
         }
     }
 }

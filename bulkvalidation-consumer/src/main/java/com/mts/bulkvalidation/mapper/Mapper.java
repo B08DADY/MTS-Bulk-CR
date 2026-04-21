@@ -18,6 +18,8 @@ public class Mapper {
         request.setInstanceId(instanceId);
         request.setWorkId(entity.getWorkId());
         request.setCloseName(entity.getCloseName());
+        request.setUserId(entity.getUserId());
+        request.setWorkerId(entity.getWorkerId());
 
 
         return request;

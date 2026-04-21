@@ -78,7 +78,7 @@ public class ValidationRouterService {
 
         // ── 1. Load the bulk-queue record ────────────────────────────────────
         List<WfWoBulkQueue> queue = wfWoBulkCloseQueueRepository
-                .findByRecordStatus("NEW");
+                .findByRecordStatus("QUEUED");
         if (queue.isEmpty()) {
             return;
         }
