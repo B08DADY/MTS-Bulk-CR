@@ -179,6 +179,9 @@ public class ValidationRouterService {
             if(order.getValidationType().equals("RETAIL_FAIL")){
                 bulkWorkActivityCloseService.closeWorkActivity(request);
                 order.setRecordStatus("Accepted");
+                order.setOrderStatus(wo.getWoStage());
+                wo.setBulkStatus("Accepted");
+                wfWorkOrderRepository.save(wo);
                 wfWoBulkCloseQueueRepository.save(order);
 
             }

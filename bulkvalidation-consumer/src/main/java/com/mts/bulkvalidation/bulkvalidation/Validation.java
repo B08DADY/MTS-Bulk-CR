@@ -111,17 +111,17 @@ public class Validation {
         }
 
         if(queue.getOrganizationUnit()==null){
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters - OrOrganization");
             return;
         }
 
         if(queue.getReferenceId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters - Reference");
             return;
         }
 
         if(queue.getServiceId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters - Service");
             return;
         }
 
