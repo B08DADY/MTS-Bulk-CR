@@ -137,7 +137,7 @@ public class ValidationRouterService {
             }
         }
         if(workId==null){
-            validation.rejectWo(order,wo,"Current Work Id is null");
+            validation.rejectWo(order,wo,"Order is before assign ready");
             return;
         }
         order.setWorkId(workId);
