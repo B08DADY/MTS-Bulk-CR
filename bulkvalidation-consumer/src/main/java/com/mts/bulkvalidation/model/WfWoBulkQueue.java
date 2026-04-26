@@ -37,8 +37,11 @@ public class WfWoBulkQueue {
     @Column(name = "PLACE", length = 100)
     private String place;
 
-    @Column(name = "SERVICE_ID", length = 20)
-    private String serviceId;
+    @Column(name = "CITY_CODE", length = 20)
+    private String cityCode;
+
+    @Column(name = "TEL_NO", length = 20)
+    private String telNo;
 
     @Column(name = "REFERENCE_ID", length = 50)
     private String referenceId;

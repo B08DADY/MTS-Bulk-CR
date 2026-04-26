@@ -54,8 +54,7 @@ public class WfWorkOrder {
     @Column(name = "REQUEST_TYPE", length = 20)
     private String requestType;
 
-    @Column(name = "SERVICE_ID", length = 20)
-    private String serviceId;
+
 
     @Column(name = "RESOURCE_ID", length = 20)
     private String resourceId;
