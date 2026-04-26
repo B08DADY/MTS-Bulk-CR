@@ -29,7 +29,7 @@ public class FoValidation extends Validation {
 
 
         if(reqClose.getCategory()!=1){
-            rejectWo(queue, workorder,"Invalid Close Code");
+            rejectWo(queue, workorder,"Invalid Close Code","Close code not in success category");
         }
 
         String category = queue.getBulkReqCategory();
@@ -37,7 +37,7 @@ public class FoValidation extends Validation {
 
         if (!categoryExempt && (queue.getBox() == null || queue.getCabinet() == null)) {
             log.warn("Box/Cabinet missing for FO queue id={}. Rejecting.", queue.getId());
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete box and cabinet");
         }
     }
 }

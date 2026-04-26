@@ -36,11 +36,11 @@ public class RetailSuccessValidation extends Validation {
                                                      WfWoBulkQueue queue) {
 
         if (queue.getDeviceType()==null) {
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete device type");
             return;
         }
         if (queue.getSerialNumber()==null) {
-            rejectWo(queue, workorder,"Incomplete parameters");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete serial number");
             return;
         }
 
@@ -49,7 +49,7 @@ public class RetailSuccessValidation extends Validation {
 
 
         if(reqClose.getCategory()!=1){
-            rejectWo(queue, workorder,"Invalid Close Code");
+            rejectWo(queue, workorder,"Invalid Close Code","Close code not in success category");
         }
 
 
@@ -58,17 +58,19 @@ public class RetailSuccessValidation extends Validation {
 
         if (reqType == null) {
             log.warn("Request type '{}' not found for queue id={}. Rejecting.", queue.getRequestType(), queue.getId());
-            rejectWo(queue, workorder,"Invalid Request Type");
+            rejectWo(queue, workorder,"Invalid Request Type","Request type not found in system");
             return;
         }
-
-        boolean deviceValid = lkpDeviceTypesRepository
-                .existsByDeviceTypeCodeAndServiceTypeCode(queue.getDeviceType(), reqType.getServiceType());
-
-        if (!deviceValid) {
-            log.warn("Device type '{}' incompatible with service type '{}' for queue id={}. Rejecting.",
-                    queue.getDeviceType(), reqType.getServiceType(), queue.getId());
-            rejectWo(queue, workorder,"Invalid technical data");
-        }
+        //-------------------------------------------------------------------------
+        //check device type is null only not the following check--
+        //-------------------------------------------------------------------------
+//        boolean deviceValid = lkpDeviceTypesRepository
+//                .existsByDeviceTypeCodeAndServiceTypeCode(queue.getDeviceType(), reqType.getServiceType());
+//
+//        if (!deviceValid) {
+//            log.warn("Device type '{}' incompatible with service type '{}' for queue id={}. Rejecting.",
+//                    queue.getDeviceType(), reqType.getServiceType(), queue.getId());
+//            rejectWo(queue, workorder,"Invalid technical data");
+//        }
     }
 }

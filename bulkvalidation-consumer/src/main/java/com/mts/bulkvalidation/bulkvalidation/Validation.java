@@ -42,10 +42,11 @@ public class Validation {
      * Marks both the bulk-queue record and the work-order as "Rejected" and
      * persists both changes.
      */
-    public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder,String reason ) {
+    public void rejectWo(WfWoBulkQueue bulkOrder, WfWorkOrder wfWorkOrder,String reason , String description) {
         try {
             bulkOrder.setRecordStatus("Rejected");
             bulkOrder.setFailReason(reason);
+            bulkOrder.setFailDescription(description);
 
             if (wfWorkOrder != null) {
                 wfWorkOrder.setBulkStatus("Rejected");
@@ -61,10 +62,12 @@ public class Validation {
 
     }
 
-    public void rejectWoBulkQueue(WfWoBulkQueue bulkOrder, String reason ) {
+    public void rejectWoBulkQueue(WfWoBulkQueue bulkOrder, String reason, String description ) {
         try {
             bulkOrder.setRecordStatus("Rejected");
             bulkOrder.setFailReason(reason);
+            bulkOrder.setFailDescription(description);
+
 
             wfWoBulkCloseQueueRepository.save(bulkOrder);
 
@@ -91,37 +94,37 @@ public class Validation {
                 );
 
         if (exists) {
-            rejectWoBulkQueue(queue,"Work order already success");
+            rejectWoBulkQueue(queue,"Work order already success","");
             return;
         }
 
 
 
         if(queue.getWorkOrderId()==null){
-            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            rejectWo(queue, workorder,"Missing Mandatory Parameter","Missing Work Order Id");
             return;
         }
         if(queue.getWorkerId()==null){
-            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            rejectWo(queue, workorder,"Missing Mandatory Parameter","Missing Worker Id");
             return;
         }
         if(queue.getCloseCode()==null){
-            rejectWo(queue, workorder,"Missing Mandatory Parameter");
+            rejectWo(queue, workorder,"Missing Mandatory Parameter","Missing Close Code");
             return;
         }
 
         if(queue.getOrganizationUnit()==null){
-            rejectWo(queue, workorder,"Incomplete parameters - OrOrganization");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete Organization Unit");
             return;
         }
 
         if(queue.getReferenceId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters - Reference");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete Reference Id");
             return;
         }
 
         if(queue.getServiceId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters - Service");
+            rejectWo(queue, workorder,"Incomplete parameters","Incomplete Service Id");
             return;
         }
 
@@ -130,7 +133,7 @@ public class Validation {
 
 
 
-        //WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
+        WfEmpRole empRole = wfEmpRoleRepository.findById(queue.getWorkerId()).orElse(null);
 
         WfEmpRoleZoneId wfEmpRoleZoneId = new WfEmpRoleZoneId(queue.getWorkerId(), Long.parseLong(workorder.getZoneId()));
         WfEmpRoleZone wfEmpRoleZone = wfEmpRoleZoneRepository.findById(wfEmpRoleZoneId).orElse(null);
@@ -145,7 +148,7 @@ public class Validation {
 
         // WO must not already be closed
         if ("Close".equals(workorder.getWoStage())) {
-            rejectWo(queue, workorder,"Invalid work order");
+            rejectWo(queue, workorder,"Invalid work order","Work Order is already closed");
             return;
         }
 
@@ -170,13 +173,17 @@ public class Validation {
         // Close code (request_type + close_code combo) must exist
 
         if (reqClose == null) {
-            rejectWo(queue, workorder,"Invalid Close Code");
+            rejectWo(queue, workorder,"Invalid Close Code","Close code not configured in request type");
             return;
         }
 
         // Worker ID must be a known employee role
-        if (wfEmpRoleReqType == null || wfEmpRoleZone ==null) {
-            rejectWo(queue, workorder,"Invalid worker id");
+        if (wfEmpRoleReqType == null ) {
+            rejectWo(queue, workorder,"Invalid worker id","Worker not configured in request type");
+            return;
+        }
+        if (wfEmpRoleZone == null ) {
+            rejectWo(queue, workorder,"Invalid worker id","Worker not configured in zone");
             return;
         }
     }

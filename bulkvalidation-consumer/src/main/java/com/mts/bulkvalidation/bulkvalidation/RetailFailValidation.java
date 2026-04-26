@@ -26,7 +26,7 @@ public class RetailFailValidation extends Validation {
 
 
         if(reqClose.getCategory()!=2){
-            rejectWo(queue, workorder,"Invalid Close Code");
+            rejectWo(queue, workorder,"Invalid Close Code","Close code not in fail category");
         }
 
     }

@@ -89,7 +89,7 @@ public class ValidationRouterService {
                 validateSingleOrder(order);
             }
             catch (Exception e){
-              validation.rejectWoBulkQueue(order,e.getMessage());
+              validation.rejectWoBulkQueue(order,e.getMessage(),"");
             }
 
         }
@@ -105,7 +105,7 @@ public class ValidationRouterService {
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
         if (wo == null || (!wo.getWoStage().equals("Schedule") && !wo.getWoStage().equals("Assign"))) {
-            validation.rejectWo(order, wo,"Invalid work order");
+            validation.rejectWo(order, wo,"Invalid work order","Work order in wrong stage");
             return;
         }
 
@@ -115,7 +115,7 @@ public class ValidationRouterService {
         if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
                 for(WorkInstanceProjection task:results){
                     if(task.getAcceptFlag()==1){
-                        validation.rejectWo(order,wo,"Order Reached PONR");
+                        validation.rejectWo(order,wo,"Order Reached PONR","accept flag is 1 not 0");
                         return;
                     }
                     else{
@@ -127,7 +127,7 @@ public class ValidationRouterService {
         else{
             for(WorkInstanceProjection task:results){
                 if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")){
-                    validation.rejectWo(order,wo,"Order Reached PONR");
+                    validation.rejectWo(order,wo,"Order Reached PONR","status not pending or dispatched");
                     return;
                 }
                 else{
@@ -137,7 +137,7 @@ public class ValidationRouterService {
             }
         }
         if(workId==null){
-            validation.rejectWo(order,wo,"Order is before assign ready");
+            validation.rejectWo(order,wo,"Order is before assign ready","work id is null");
             return;
         }
         order.setWorkId(workId);

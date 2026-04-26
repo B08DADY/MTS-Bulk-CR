@@ -96,6 +96,8 @@ public class WfWoBulkQueue {
 
     @Column(name="CLOSE_NAME")
     private String closeName;
+    @Column(name="FAIL_DESCRIPTION")
+    private String failDescription;
 
 
 }
