@@ -126,7 +126,7 @@ public class ValidationRouterService {
         }
         else{
             for(WorkInstanceProjection task:results){
-                if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")){
+                if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")&&!task.getStatus().equals("Canceled")){
                     validation.rejectWo(order,wo,"Order Reached PONR","status not pending or dispatched");
                     return;
                 }
@@ -189,8 +189,6 @@ public class ValidationRouterService {
                 bulkAttributesMappingService.execute(order);
                 bulkTerminateAndGenerateService.execute(request);
             }
-            //activate
-
         }
 
     }
