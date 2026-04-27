@@ -118,29 +118,48 @@ public class ValidationRouterService {
                         validation.rejectWo(order,wo,"Order Reached PONR","accept flag is 1 not 0");
                         return;
                     }
-                    else{
-                        workId=task.getWorkId();
-                        instanceId=task.getInstanceId();
-                    }
+//                    else{
+//                        workId=task.getWorkId();
+//                        instanceId=task.getInstanceId();
+//                    }
                 }
         }
         else{
             for(WorkInstanceProjection task:results){
-                if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")&&!task.getStatus().equals("Canceled")){
+                if(!task.getStatus().equals("Pending")&&!task.getStatus().equals("Dispatched")&&!task.getStatus().equals("Assigned")&&!task.getStatus().equals("Canceled")){
                     validation.rejectWo(order,wo,"Order Reached PONR","status not pending or dispatched");
                     return;
                 }
-                else{
-                    workId=task.getWorkId();
-                    instanceId=task.getInstanceId();
-                }
+//                else{
+//                    workId=task.getWorkId();
+//                    instanceId=task.getInstanceId();
+//                }
             }
         }
-        if(workId==null){
-            validation.rejectWo(order,wo,"Order is before assign ready","work id is null");
-            return;
+        WorkInstanceProjection lastEligibleTask;
+        if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
+            List<WorkInstanceProjection> retailTasks = workOrderItemRepository
+                    .findLastAcceptablWork(order.getWorkOrderId(), order.getRequestType());
+            if (retailTasks.isEmpty()) {
+                validation.rejectWo(order, wo, "No eligible work found", "No work with accept_flag = 0");
+                return;
+            }
+            lastEligibleTask = retailTasks.get(0);
         }
-        order.setWorkId(workId);
+        else{
+            List<WorkInstanceProjection> foTasks = workOrderItemRepository
+                    .findLastPendingOrDispatchedWork(order.getWorkOrderId(), order.getRequestType());
+            if (foTasks.isEmpty()) {
+                validation.rejectWo(order, wo, "No eligible work found", "No work with Pending or Dispatched status");
+                return;
+            }
+            lastEligibleTask = foTasks.get(0);
+        }
+//        if(workId==null){
+//            validation.rejectWo(order,wo,"Order is before assign ready","work id is null");
+//            return;
+//        }
+        order.setWorkId(lastEligibleTask.getWorkId());
 
 
         validation.validateAfterBulkQueue(wo, order);
@@ -174,7 +193,7 @@ public class ValidationRouterService {
             wfWoBulkCloseQueueRepository.save(order);
 
             // call the terminate and the generate
-            BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,instanceId);
+            BulkTerminateRequest request= Mapper.BulkQueueToBulkTerminateRequest(order,lastEligibleTask.getInstanceId());
 
             if(order.getValidationType().equals("RETAIL_FAIL")){
                 bulkWorkActivityCloseService.closeWorkActivity(request);
@@ -189,6 +208,8 @@ public class ValidationRouterService {
                 bulkAttributesMappingService.execute(order);
                 bulkTerminateAndGenerateService.execute(request);
             }
+            //activate
+
         }
 
     }
