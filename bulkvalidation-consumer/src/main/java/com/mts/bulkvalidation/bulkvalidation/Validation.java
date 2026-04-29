@@ -123,10 +123,10 @@ public class Validation {
             return;
         }
 
-        if(queue.getServiceId()==null){
-            rejectWo(queue, workorder,"Incomplete parameters","Incomplete Service Id");
-            return;
-        }
+//        if(queue.getServiceId()==null){
+//            rejectWo(queue, workorder,"Incomplete parameters","Incomplete Service Id");
+//            return;
+//        }
 
 
 

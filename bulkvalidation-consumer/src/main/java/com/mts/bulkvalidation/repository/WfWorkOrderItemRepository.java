@@ -34,7 +34,7 @@ public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem
             "JOIN bs_cfg_req_type_items bs ON woi.wo_item_sequence = bs.req_item_seq " +
             "WHERE woi.work_order_id = :workOrderId " +
             "AND bs.request_type = :requestType " +
-            "AND w.status IN ('Pending', 'Dispatched','Assigned','Canceled') " +
+            "AND w.status IN ('Pending', 'Dispatched','Assigned','Started','Pending Processing') " +
             "ORDER BY w.work_id DESC", nativeQuery = true)
     List<WorkInstanceProjection> findLastPendingOrDispatchedWork(@Param("workOrderId") String workOrderId,
                                                                  @Param("requestType") String requestType);

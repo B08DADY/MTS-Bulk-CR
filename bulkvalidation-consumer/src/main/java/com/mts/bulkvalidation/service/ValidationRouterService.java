@@ -139,7 +139,7 @@ public class ValidationRouterService {
         WorkInstanceProjection lastEligibleTask;
         if(order.getValidationType().equals("RETAIL_SUCCESS") || order.getValidationType().equals("RETAIL_FAIL")){
             List<WorkInstanceProjection> retailTasks = workOrderItemRepository
-                    .findLastAcceptablWork(order.getWorkOrderId(), order.getRequestType());
+                    .findLastPendingOrDispatchedWork(order.getWorkOrderId(), order.getRequestType());
             if (retailTasks.isEmpty()) {
                 validation.rejectWo(order, wo, "No eligible work found", "No work with accept_flag = 0");
                 return;
