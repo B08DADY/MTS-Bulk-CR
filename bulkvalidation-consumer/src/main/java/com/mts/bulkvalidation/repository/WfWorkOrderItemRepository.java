@@ -36,8 +36,7 @@ public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem
             "AND bs.request_type = :requestType " +
             "AND w.status IN ('Pending', 'Dispatched','Assigned','Started','Pending Processing') " +
             "ORDER BY w.work_id DESC", nativeQuery = true)
-    List<WorkInstanceProjection> findLastPendingOrDispatchedWork(@Param("workOrderId") String workOrderId,
-                                                                 @Param("requestType") String requestType);
+    List<WorkInstanceProjection> findLastPendingOrDispatchedWork(@Param("workOrderId") String workOrderId, @Param("requestType") String requestType);
 
     // ── RETAIL: last work where accept_flag = 0 (no bulk_flag) ────────────────
     @Query(value = "SELECT w.work_id AS \"workId\", w.instance_id AS \"instanceId\", w.accept_flag AS \"acceptFlag\", w.status AS \"status\" " +
