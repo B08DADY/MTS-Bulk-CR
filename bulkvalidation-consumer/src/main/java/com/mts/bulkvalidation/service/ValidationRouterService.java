@@ -199,8 +199,10 @@ public class ValidationRouterService {
                 bulkWorkActivityCloseService.closeWorkActivity(request);
                 wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
                 order.setRecordStatus("Accepted");
+
                 order.setOrderStatus(wo.getWoStage()+" "+wo.getWoStatus());
                 wo.setBulkStatus("Accepted");
+                wo.setClosedBy(order.getWorkerId());
                 wfWorkOrderRepository.save(wo);
                 wfWoBulkCloseQueueRepository.save(order);
 
