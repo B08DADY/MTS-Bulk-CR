@@ -176,6 +176,10 @@ public class Validation {
             rejectWo(queue, workorder,"Invalid Close Code","Close code not configured in request type");
             return;
         }
+        if (empRole == null ) {
+            rejectWo(queue, workorder,"Invalid worker id","Worker not configured in system");
+            return;
+        }
 
         // Worker ID must be a known employee role
         if (wfEmpRoleReqType == null ) {
