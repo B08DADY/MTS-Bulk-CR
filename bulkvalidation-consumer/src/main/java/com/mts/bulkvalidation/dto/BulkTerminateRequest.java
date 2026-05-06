@@ -15,4 +15,5 @@ public class BulkTerminateRequest {
     private Long instanceId;
     private String userId;
     private String workerId;
+    private Long queueId;
 }

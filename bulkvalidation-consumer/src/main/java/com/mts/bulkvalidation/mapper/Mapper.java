@@ -20,6 +20,7 @@ public class Mapper {
         request.setCloseName(entity.getCloseName());
         request.setUserId(entity.getUserId());
         request.setWorkerId(entity.getWorkerId());
+        request.setQueueId(entity.getId());
 
 
         return request;

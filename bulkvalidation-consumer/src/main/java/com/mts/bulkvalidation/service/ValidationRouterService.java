@@ -208,7 +208,7 @@ public class ValidationRouterService {
 
             }
             else{
-                bulkAttributesMappingService.execute(order);
+//                bulkAttributesMappingService.execute(order);
                 bulkTerminateAndGenerateService.execute(request);
             }
             //activate
