@@ -5,6 +5,7 @@ import com.mts.bulkvalidation.bulkvalidation.RetailFailValidation;
 import com.mts.bulkvalidation.bulkvalidation.RetailSuccessValidation;
 import com.mts.bulkvalidation.bulkvalidation.Validation;
 import com.mts.bulkvalidation.dto.BulkTerminateRequest;
+import com.mts.bulkvalidation.dto.TerminateAndGenerateRequest;
 import com.mts.bulkvalidation.mapper.Mapper;
 import com.mts.bulkvalidation.model.WfWoAdditionalAttribute;
 import com.mts.bulkvalidation.model.WfWoBulkQueue;
@@ -58,6 +59,8 @@ public class ValidationRouterService {
     private BulkTerminateAndGenerateService bulkTerminateAndGenerateService;
 
     @Autowired
+    private TerminateAndGenerateService terminateAndGenerateService;
+    @Autowired
     private BulkWorkActivityCloseService bulkWorkActivityCloseService;
 
 
@@ -89,7 +92,10 @@ public class ValidationRouterService {
                 validateSingleOrder(order);
             }
             catch (Exception e){
-              validation.rejectWoBulkQueue(order,e.getMessage(),"");
+                WfWoBulkQueue updatedOrder = wfWoBulkCloseQueueRepository
+                        .findById(order.getId()).orElse(null);
+                validation.rejectWoBulkQueue(updatedOrder, e.getMessage(), "");
+
             }
 
         }
@@ -101,7 +107,8 @@ public class ValidationRouterService {
     public void validateSingleOrder(WfWoBulkQueue order){
         String type=order.getValidationType();
         List<WorkInstanceProjection> results=workOrderItemRepository
-                .findOrderTasks(order.getWorkOrderId(), order.getRequestType());;
+                .findOrderTasks(order.getWorkOrderId(), order.getRequestType());
+
 
         WfWorkOrder wo= wfWorkOrderRepository.findById(order.getWorkOrderId()).orElse(null);
         if (wo == null || (!wo.getWoStage().equals("Schedule") && !wo.getWoStage().equals("Assign"))) {
@@ -209,7 +216,27 @@ public class ValidationRouterService {
             }
             else{
 //                bulkAttributesMappingService.execute(order);
-                bulkTerminateAndGenerateService.execute(request);
+                try {
+                    bulkTerminateAndGenerateService.execute(request);
+                }
+                catch (Exception e){
+
+
+                    List<WorkInstanceProjection> tasks = workOrderItemRepository
+                            .findLastPendingOrDispatchedWork(order.getWorkOrderId(), order.getRequestType());
+
+                    Long bulkWorkId=tasks.get(0).getWorkId();
+                    Long bulkInstanceId=tasks.get(0).getInstanceId();
+                    String action=tasks.get(0).getAction();
+                    Long itemSeq=workOrderItemRepository.findWoItemSequenceByWorkId(order.getWorkId());// which workId
+
+                    if(action.equals("Bulk")){
+                        TerminateAndGenerateRequest terminateRequest = Mapper.BulkQueueToTerminateRequest(order, bulkWorkId, bulkInstanceId, itemSeq);
+                        terminateAndGenerateService.execute(terminateRequest);
+                    }
+                    validation.rejectWoBulkQueue(order, "Exception happend", "Please check and retry");
+
+                }
             }
             //activate
 

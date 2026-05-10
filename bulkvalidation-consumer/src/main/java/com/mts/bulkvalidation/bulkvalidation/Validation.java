@@ -68,7 +68,6 @@ public class Validation {
             bulkOrder.setFailReason(reason);
             bulkOrder.setFailDescription(description);
 
-
             wfWoBulkCloseQueueRepository.save(bulkOrder);
 
         }

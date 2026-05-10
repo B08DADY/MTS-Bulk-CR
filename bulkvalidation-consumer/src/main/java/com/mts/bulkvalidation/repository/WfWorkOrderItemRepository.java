@@ -28,7 +28,7 @@ public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem
 
 
 
-    @Query(value = "SELECT w.work_id AS \"workId\", w.instance_id AS \"instanceId\", w.accept_flag AS \"acceptFlag\", w.status AS \"status\" " +
+    @Query(value = "SELECT w.work_id AS \"workId\", woi.action AS \"action\", w.instance_id AS \"instanceId\", w.accept_flag AS \"acceptFlag\", w.status AS \"status\" " +
             "FROM wf_work_order_item woi " +
             "JOIN wf_work w ON w.work_id = woi.work_id " +
             "JOIN bs_cfg_req_type_items bs ON woi.wo_item_sequence = bs.req_item_seq " +
@@ -49,6 +49,13 @@ public interface WfWorkOrderItemRepository extends JpaRepository<WfWorkOrderItem
             "ORDER BY w.work_id DESC", nativeQuery = true)
     List<WorkInstanceProjection> findLastAcceptablWork(@Param("workOrderId") String workOrderId,
                                                        @Param("requestType") String requestType);
+
+
+    @Query(value = "SELECT WO_ITEM_SEQUENCE FROM WF_WORK_ORDER_ITEM WHERE WORK_ID = :workId", nativeQuery = true)
+    Long findWoItemSequenceByWorkId(@Param("workId") Long workId);
+
+
+
 
 
 

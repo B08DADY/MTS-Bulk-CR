@@ -28,4 +28,8 @@ public class WfWorkOrderItem {
     @JoinColumn(name = "WORK_ID")
     private WfWork work;
 
+    @Column(name = "WO_ITEM_SEQUENCE")
+    private Long nextItemSeq;
+
+
 }

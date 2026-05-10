@@ -47,7 +47,7 @@ public class BulkTerminateAndGenerateService {
         query.registerStoredProcedureParameter("P_INSTANCE_ID",   Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_WORKER_ID",   String.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_USER_ID",   String.class,   ParameterMode.IN);
-    query.registerStoredProcedureParameter("P_QUEUE_ID",    Long.class,   ParameterMode.IN);
+        query.registerStoredProcedureParameter("P_QUEUE_ID",    Long.class,   ParameterMode.IN);
         query.registerStoredProcedureParameter("P_NEW_WORK_ID",   String.class, ParameterMode.OUT);
 
         ProcedureCall procedureCall = query.unwrap(ProcedureCall.class);

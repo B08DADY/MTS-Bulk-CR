@@ -5,4 +5,5 @@ public interface WorkInstanceProjection {
     Long getInstanceId();
     String getStatus();
     Long getAcceptFlag();
+    String getAction();
 }

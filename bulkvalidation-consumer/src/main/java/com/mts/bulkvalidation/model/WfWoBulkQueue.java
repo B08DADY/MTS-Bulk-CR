@@ -28,7 +28,7 @@ public class WfWoBulkQueue {
     private String workOrderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_order_id")
+    @JoinColumn(name = "work_order_id", insertable = false, updatable = false) // ← add these
     private WfWorkOrder workOrder;
 
     @Column(name = "ORGANIZATION_UNIT", length = 100)

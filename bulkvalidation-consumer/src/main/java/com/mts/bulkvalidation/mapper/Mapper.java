@@ -1,6 +1,7 @@
 package com.mts.bulkvalidation.mapper;
 
 import com.mts.bulkvalidation.dto.BulkTerminateRequest;
+import com.mts.bulkvalidation.dto.TerminateAndGenerateRequest;
 import com.mts.bulkvalidation.model.WfWoAdditionalAttribute;
 import com.mts.bulkvalidation.model.WfWoBulkQueue;
 
@@ -24,6 +25,35 @@ public class Mapper {
 
 
         return request;
+    }
+    public static TerminateAndGenerateRequest BulkQueueToTerminateRequest(WfWoBulkQueue entity,Long bulkWorkId,Long instanceId,Long itemSeq ){
+        TerminateAndGenerateRequest request=new TerminateAndGenerateRequest();
+        request.setNotes("Rejected");
+        request.setUpdateBy("Bulk");
+        request.setCategoryId("2");
+        request.setCloseName("Rejected");
+        request.setNewStatus("Completed ");
+
+        if(itemSeq!=null)
+            request.setNewActivity(itemSeq.toString());
+
+        request.setWoId(entity.getWorkOrderId());
+        request.setNotGenerateProcess("0");
+        request.setSameOwnerFlag("0");
+
+        if(bulkWorkId!=null)
+            request.setWorkId(bulkWorkId.toString());
+
+        if(instanceId!=null)
+            request.setInstanceId(instanceId.toString());
+
+        request.setRequestType(entity.getRequestType());
+
+
+
+
+
+        return  request;
     }
 
 
