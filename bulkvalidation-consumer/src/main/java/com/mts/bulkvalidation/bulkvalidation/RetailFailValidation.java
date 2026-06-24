@@ -21,9 +21,26 @@ public class RetailFailValidation extends Validation {
     public void validateRetailFailAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
         // No additional rules currently — common validation in Validation.validateAfterBulkQueue() is sufficient.
 
-        BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
-        BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
+        BsCfgReqClose reqClose;
 
+        if ("Y".equalsIgnoreCase(workorder.getConvergentFlag())) {
+
+            reqClose = bsCfgReqCloseRepository
+                    .findByIdRequestTypeAndConvergentCloseCode(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+        } else {
+
+            BsCfgReqCloseId id =
+                    new BsCfgReqCloseId(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+            reqClose = bsCfgReqCloseRepository
+                    .findById(id)
+                    .orElse(null);
+        }
 
         if(reqClose.getCategory()!=2){
             rejectWo(queue, workorder,"Invalid Close Code","Close code not in fail category");

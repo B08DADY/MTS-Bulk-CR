@@ -331,6 +331,9 @@ public class WfWorkOrder {
     @Column(name = "ORIGINAL_SCH_SOURCE", length = 50)
     private String originalSchSource;
 
+    @Column(name = "CONVERGENT_FLAG")
+    private String convergentFlag;
+
     @Column(name = "MANUAL_SCHD_TIME")
     @Temporal(TemporalType.DATE)
     private Date manualSchdTime;

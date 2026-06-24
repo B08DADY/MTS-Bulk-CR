@@ -140,9 +140,37 @@ public class Validation {
         WfEmpRoleReqTypeId wfEmpRoleReqTypeId=new WfEmpRoleReqTypeId(queue.getWorkerId(), workorder.getRequestType());
         WfEmpRoleReqType wfEmpRoleReqType= wfEmpRoleReqTypeRepository.findById(wfEmpRoleReqTypeId).orElse(null);
 
-        BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
-        BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
+//        BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
+//        BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
+        BsCfgReqClose reqClose;
 
+        if ("Y".equalsIgnoreCase(workorder.getConvergentFlag())) {
+
+            reqClose = bsCfgReqCloseRepository
+                    .findByIdRequestTypeAndConvergentCloseCode(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+            if (reqClose == null) {
+                rejectWo(queue, workorder,"Invalid Convergent Close Code","Close code not configured in request type");
+                return;
+            }
+
+        } else {
+
+            BsCfgReqCloseId id =
+                    new BsCfgReqCloseId(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+            reqClose = bsCfgReqCloseRepository
+                    .findById(id)
+                    .orElse(null);
+            if (reqClose == null) {
+                rejectWo(queue, workorder,"Invalid Close Code","Close code not configured in request type");
+                return;
+            }
+        }
 
 
         // WO must not already be closed
@@ -171,10 +199,10 @@ public class Validation {
 
         // Close code (request_type + close_code combo) must exist
 
-        if (reqClose == null) {
-            rejectWo(queue, workorder,"Invalid Close Code","Close code not configured in request type");
-            return;
-        }
+//        if (reqClose == null) {
+//            rejectWo(queue, workorder,"Invalid Close Code","Close code not configured in request type");
+//            return;
+//        }
         if (empRole == null ) {
             rejectWo(queue, workorder,"Invalid worker id","Worker not configured in system");
             return;

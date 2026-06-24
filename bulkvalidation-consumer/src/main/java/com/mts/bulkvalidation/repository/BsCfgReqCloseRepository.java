@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BsCfgReqCloseRepository extends JpaRepository<BsCfgReqClose, BsCfgReqCloseId> {
+    BsCfgReqClose findByIdRequestTypeAndConvergentCloseCode(
+            String requestType,
+            String convergentCloseCode);
 }

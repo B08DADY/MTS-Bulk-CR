@@ -44,9 +44,26 @@ public class RetailSuccessValidation extends Validation {
             return;
         }
 
-        BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
-        BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
+        BsCfgReqClose reqClose;
 
+        if ("Y".equalsIgnoreCase(workorder.getConvergentFlag())) {
+
+            reqClose = bsCfgReqCloseRepository
+                    .findByIdRequestTypeAndConvergentCloseCode(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+        } else {
+
+            BsCfgReqCloseId id =
+                    new BsCfgReqCloseId(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+            reqClose = bsCfgReqCloseRepository
+                    .findById(id)
+                    .orElse(null);
+        }
 
         if(reqClose.getCategory()!=1){
             rejectWo(queue, workorder,"Invalid Close Code","Close code not in success category");

@@ -33,6 +33,9 @@ public class BsCfgReqClose {
     @Column(name = "CLOSE_TYPE", length = 50)
     private String closeType;
 
+    @Column(name = "CONVERGENT_CLOSE_CODE")
+    private String convergentCloseCode;
+
     @PrePersist
     @PreUpdate
     private void trimCloseName() {

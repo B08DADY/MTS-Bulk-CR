@@ -24,8 +24,26 @@ public class FoValidation extends Validation {
     public void validateFoAfterBulkQueue(WfWorkOrder workorder, WfWoBulkQueue queue) {
 
 
-        BsCfgReqCloseId id = new BsCfgReqCloseId(queue.getRequestType(), queue.getCloseCode());
-        BsCfgReqClose reqClose = bsCfgReqCloseRepository.findById(id).orElse(null);
+        BsCfgReqClose reqClose;
+
+        if ("Y".equalsIgnoreCase(workorder.getConvergentFlag())) {
+
+            reqClose = bsCfgReqCloseRepository
+                    .findByIdRequestTypeAndConvergentCloseCode(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+        } else {
+
+            BsCfgReqCloseId id =
+                    new BsCfgReqCloseId(
+                            queue.getRequestType(),
+                            queue.getCloseCode());
+
+            reqClose = bsCfgReqCloseRepository
+                    .findById(id)
+                    .orElse(null);
+        }
 
 
         if(reqClose.getCategory()!=1){
